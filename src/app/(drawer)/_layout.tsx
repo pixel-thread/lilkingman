@@ -1,28 +1,15 @@
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
+import { CustomDrawerContent } from '~/src/components/common/CustomDrawer';
 
 const DrawerLayout = () => {
   return (
-    <Drawer>
-      <Drawer.Screen
-        name="index"
-        options={{
-          headerShown: false,
-          headerTitle: 'Home',
-          drawerLabel: 'Home',
-          drawerIcon: ({ size, color }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
-          ),
-        }}
-      />
+    <Drawer drawerContent={CustomDrawerContent}>
       <Drawer.Screen
         name="(tabs)"
         options={{
-          drawerLabel: 'Tabs',
+          drawerLabel: 'Home',
           headerShown: false,
-          drawerIcon: ({ size, color }) => (
-            <MaterialIcons name="border-bottom" size={size} color={color} />
-          ),
         }}
       />
     </Drawer>

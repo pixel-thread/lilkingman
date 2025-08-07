@@ -3,6 +3,7 @@ import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { logger } from '../logger';
 
 import axiosInstance from '~/src/utils/api';
+import { removeUser } from '../storage/user';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -17,6 +18,10 @@ export const handleAxiosError = <T>(error: unknown): ApiResponse<T> => {
   let errorDetails: string | Record<string, any> = '';
 
   if (error instanceof AxiosError) {
+    if (error.response?.status === 401) {
+      removeUser();
+      errorMessage = 'Your session has expired. Please login again.';
+    }
     if (error.response) {
       errorMessage = (error.response.data as { message?: string })?.message || errorMessage;
       errorDetails =
@@ -45,6 +50,7 @@ const handleResponse = <T>(response: AxiosResponse<ApiResponse<T>>): ApiResponse
     success: response.data.success,
     message: response.data.message || 'Request successful',
     data: response.data.data ?? null,
+    token: response.data.token,
   };
 };
 

@@ -6,6 +6,7 @@ export const Redirect = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuthContext();
   const pathName = usePathname();
   const isAuthenticated = !!user;
+
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace('/auth');

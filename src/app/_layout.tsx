@@ -6,6 +6,9 @@ import { AuthContextProvider } from '@components/provider/auth';
 import { TQueryProvider } from '@components/provider/query';
 import { Redirect } from '@components/common/Redirect';
 import React from 'react';
+import { KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
+import { EventContextProvider } from '../components/provider/event';
+import { Loading } from '../components/common/Loading';
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -25,13 +28,22 @@ export default function RootLayout() {
   return (
     <TQueryProvider>
       <AuthContextProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <Redirect>
-            <Stack>
-              <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-            </Stack>
-          </Redirect>
-        </GestureHandlerRootView>
+        <EventContextProvider>
+          <Loading>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <StatusBar className="" />
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                className="flex-1">
+                <Redirect>
+                  <Stack>
+                    <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+                  </Stack>
+                </Redirect>
+              </KeyboardAvoidingView>
+            </GestureHandlerRootView>
+          </Loading>
+        </EventContextProvider>
       </AuthContextProvider>
     </TQueryProvider>
   );
