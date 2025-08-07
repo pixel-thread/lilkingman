@@ -3,10 +3,6 @@ import { EventScreen } from '~/src/components/screen/event';
 import { CustomHeader } from '~/src/components/common/CustomHeader';
 import { CustomLoadingHeader } from '~/src/components/common/CustomLoadingHeader';
 import { useEventContext } from '~/src/hooks/event/useEventContext';
-import { NoEvent } from '~/src/components/screen/event/NoEvent';
-import { Container } from '~/src/components/common/Container';
-import { TouchableOpacity, View } from 'react-native';
-import { EventRightHeader } from '~/src/components/screen/event/EventRightHeader';
 
 export default function Home() {
   const { event, isEventLoading } = useEventContext();
@@ -20,16 +16,20 @@ export default function Home() {
               <CustomLoadingHeader />
             ) : (
               <CustomHeader
-                rightHeader={<EventRightHeader />}
+                showBackButton
                 title={event?.name || 'Event Gallery'}
                 showRightIcon={!!event}
+                rightIconName="camera-outline"
+                rightIconType="Ionicons"
+                onRightIconPress={() => {
+                  // Add camera/upload functionality
+                  console.log('Camera button pressed');
+                }}
               />
             ),
         }}
       />
-      <Container>
-        <EventScreen />
-      </Container>
+      <EventScreen />
     </>
   );
 }

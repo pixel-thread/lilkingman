@@ -18,7 +18,7 @@ export const AuthScreen = () => {
         {/* Logo/Image */}
         <View className="mb-8 mt-10 w-full items-center">
           <Image
-            source={require('~/src/assets/icon.png')}
+            source={require('~/src/assets/images/login/login.jpg')}
             className="mb-4 h-72 w-32 rounded-xl"
             resizeMode="contain"
           />

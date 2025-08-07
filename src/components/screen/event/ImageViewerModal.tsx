@@ -1,29 +1,16 @@
-import { Stack } from 'expo-router';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import {
   View,
   Image,
-  RefreshControl,
   Modal,
   TouchableOpacity,
-  Dimensions,
-  FlatList,
-  ScrollView,
   Animated,
-  StatusBar,
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
-import { Skeleton } from '~/src/components/ui/Skeleton';
 import { Text } from '~/src/components/ui/Text';
-import { useEventContext } from '~/src/hooks/event/useEventContext';
-import { Ternary } from '../../common/Ternary';
-import { useQuery } from '@tanstack/react-query';
-import http from '~/src/utils/http';
-import { NoEvent } from './NoEvent';
-import { LoadingEvent } from './LoadingEvent';
 
 type ImageT = {
   id: string;
@@ -39,22 +26,22 @@ type Props = {
   image: ImageT | null;
   onClose: () => void;
   visible: boolean;
+  fade: any;
+  scale: any;
 };
 
 export const ImageViewerModal = ({
   image: selectedImage,
   onClose: closeModal,
   visible: modalVisible,
+  fade: fadeAnim,
+  scale: scaleAnim,
 }: Props) => {
   const [imageLoading, setImageLoading] = useState(true);
 
-  // Animation values
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.9)).current;
-
   return (
     <Modal transparent={true} visible={modalVisible} onRequestClose={closeModal}>
-      <BlurView intensity={90} tint="dark" style={StyleSheet.absoluteFill}>
+      <BlurView intensity={90} tint="default" style={StyleSheet.absoluteFill}>
         <Animated.View
           style={[
             StyleSheet.absoluteFill,

@@ -1,8 +1,8 @@
-import { FlatList, View, Dimensions, StatusBar } from 'react-native';
+import { FlatList, View, Dimensions } from 'react-native';
 import { Skeleton } from '../../ui/Skeleton';
 import { RefreshControl } from 'react-native-gesture-handler';
 import { useEventContext } from '~/src/hooks/event/useEventContext';
-import { Stack } from 'expo-router';
+import { EventHeader } from './EventHeader';
 
 export const LoadingEvent = () => {
   const { refresh } = useEventContext();
@@ -11,25 +11,8 @@ export const LoadingEvent = () => {
 
   return (
     <>
-      <StatusBar barStyle="light-content" />
-      <Stack.Screen
-        options={{
-          title: 'Event Gallery',
-          headerTintColor: '#fff',
-          headerShadowVisible: false,
-        }}
-      />
 
-      {/* Loading Event Header */}
-      <View className="bg-gray-900 px-4 pb-6 pt-4">
-        <View className="mb-2 flex-row items-center justify-between">
-          <View className="flex-1">
-            <Skeleton className="mb-2 h-8 w-3/4 rounded-md" />
-            <Skeleton className="h-4 w-1/3 rounded-md" />
-          </View>
-          <Skeleton className="h-10 w-10 rounded-full" />
-        </View>
-      </View>
+      <EventHeader isLoading={true} event={null} />
 
       <FlatList
         data={Array.from({ length: 24 })}

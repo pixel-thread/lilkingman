@@ -4,7 +4,7 @@ import { AuthScreen } from '~/src/components/screen/auth';
 export default function page() {
   return (
     <>
-      <Stack.Screen options={{ title: 'Auth' }} />
+      <Stack.Screen options={{ title: 'Auth', headerShown: false }} />
       <AuthScreen />
     </>
   );

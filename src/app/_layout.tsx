@@ -6,10 +6,12 @@ import { AuthContextProvider } from '@components/provider/auth';
 import { TQueryProvider } from '@components/provider/query';
 import { Redirect } from '@components/common/Redirect';
 import React from 'react';
-import { KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 import { EventContextProvider } from '../components/provider/event';
 import { Loading } from '../components/common/Loading';
-
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { Container } from '../components/common/Container';
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(drawer)',
@@ -26,25 +28,27 @@ export default function RootLayout() {
     return null;
   }
   return (
-    <TQueryProvider>
-      <AuthContextProvider>
-        <EventContextProvider>
-          <Loading>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <StatusBar className="" />
-              <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                className="flex-1">
-                <Redirect>
-                  <Stack>
-                    <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-                  </Stack>
-                </Redirect>
-              </KeyboardAvoidingView>
-            </GestureHandlerRootView>
-          </Loading>
-        </EventContextProvider>
-      </AuthContextProvider>
-    </TQueryProvider>
+    <SafeAreaProvider>
+      <TQueryProvider>
+        <AuthContextProvider>
+          <EventContextProvider>
+            <Loading>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <StatusBar backgroundColor="#000" />
+                <KeyboardAvoidingView
+                  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                  className="flex-1">
+                  <Redirect>
+                    <Stack>
+                      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+                    </Stack>
+                  </Redirect>
+                </KeyboardAvoidingView>
+              </GestureHandlerRootView>
+            </Loading>
+          </EventContextProvider>
+        </AuthContextProvider>
+      </TQueryProvider>
+    </SafeAreaProvider>
   );
 }

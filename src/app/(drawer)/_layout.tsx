@@ -1,10 +1,23 @@
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
 import { CustomDrawerContent } from '~/src/components/common/CustomDrawer';
+import { CustomHeader } from '~/src/components/common/CustomHeader';
 
 const DrawerLayout = () => {
   return (
-    <Drawer drawerContent={CustomDrawerContent}>
+    <Drawer
+      screenOptions={{
+        header: ({ options }) => (
+          <CustomHeader
+            title={options.title}
+            showRightIcon={true}
+            rightIconName="camera-outline"
+            onRightIconPress={() => {
+              console.log('Camera button pressed');
+            }}
+          />
+        ),
+      }}
+      drawerContent={CustomDrawerContent}>
       <Drawer.Screen
         name="(tabs)"
         options={{

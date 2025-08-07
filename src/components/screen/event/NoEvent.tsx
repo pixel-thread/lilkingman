@@ -49,7 +49,7 @@ export const NoEvent = () => {
   if (isLoading) return <View />;
 
   return (
-    <View className="flex-1 items-center justify-center space-y-6 bg-background p-6">
+    <View className="flex-1 items-center justify-center space-y-6 bg-background p-6" style={{ paddingTop: 0 }}>
       <Modal
         visible={cameraVisible}
         animationType="fade"
