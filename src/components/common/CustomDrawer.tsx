@@ -61,22 +61,10 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
           label={item.title}
           // @ts-ignore
           onPress={() => router.push(`/${item.herf}`)}
-          labelStyle={{
-            textTransform: 'capitalize',
-            fontWeight: 'bold',
-          }}
         />
       ))}
 
-      <DrawerItem
-        label={'Logout'}
-        onPress={mutate}
-        labelStyle={{
-          textTransform: 'capitalize',
-          fontWeight: 'bold',
-          color: 'white',
-        }}
-      />
+      <DrawerItem label={'Logout'} onPress={mutate} />
     </DrawerContentScrollView>
   );
 }

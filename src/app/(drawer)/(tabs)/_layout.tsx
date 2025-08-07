@@ -25,13 +25,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="inbox" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="three"
-        options={{
-          title: 'Account',
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
-        }}
-      />
     </Tabs>
   );
 }
