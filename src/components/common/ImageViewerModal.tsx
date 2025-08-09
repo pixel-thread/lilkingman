@@ -14,7 +14,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { Text } from '~/src/components/ui/Text';
-import * as MediaLibrary from 'expo-media-library';
 import { useFileDownload } from '~/src/hooks/download/useFileDownload';
 import { ImageI } from '~/src/types/Image';
 
@@ -34,26 +33,12 @@ export const ImageViewerModal = ({
   scale: scaleAnim,
 }: Props) => {
   const [imageLoading, setImageLoading] = useState(true);
-  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
   const { isDownloading, downloadFile } = useFileDownload();
 
   const downloadImage = async () => {
     if (!selectedImage) return;
 
     try {
-      // Request permissions if not already granted
-      if (permissionResponse?.status !== 'granted') {
-        const permission = await requestPermission();
-        if (permission.status !== 'granted') {
-          Alert.alert(
-            'Permission Required',
-            'Please grant permission to save photos to your gallery'
-          );
-          return;
-        }
-      }
-
-      // Save the image to the media library
       downloadFile({
         fileUrl: selectedImage.path,
         type: selectedImage.mimeType.split('/')[1],

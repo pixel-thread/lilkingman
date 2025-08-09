@@ -11,7 +11,6 @@ export const LoadingEvent = () => {
 
   return (
     <>
-
       <EventHeader isLoading={true} event={null} />
 
       <FlatList

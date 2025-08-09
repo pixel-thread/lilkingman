@@ -41,9 +41,7 @@ export const EventHeader = ({ event, isLoading = false, onCameraPress }: EventHe
             {event?.date ? new Date(event.date).toLocaleDateString() : 'Today'}
           </Text>
         </View>
-        <TouchableOpacity
-          className="rounded-full bg-gray-800 p-2"
-          onPress={onCameraPress}>
+        <TouchableOpacity className="rounded-full bg-gray-800 p-2" onPress={onCameraPress}>
           <Ionicons name="camera-outline" size={24} color="white" />
         </TouchableOpacity>
       </View>

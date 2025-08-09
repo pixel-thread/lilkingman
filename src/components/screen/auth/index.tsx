@@ -1,9 +1,8 @@
-import { View, Image, ScrollView } from 'react-native';
+import { View, Image, ScrollView, RefreshControl } from 'react-native';
 import { Text } from '~/src/components/ui/Text';
 import { H1, P } from '~/src/components/ui/Typography';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import { SocialLogin } from './SocialLogin';
-import { RefreshControl } from 'react-native';
 import { LoginForm } from './LoginForm';
 
 export const AuthScreen = () => {

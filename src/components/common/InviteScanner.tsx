@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { View, TouchableOpacity, Modal, StyleSheet, Pressable, Dimensions } from 'react-native';
-import { CameraType, CameraView } from 'expo-camera';
+import { View, TouchableOpacity, Modal, StyleSheet, Dimensions } from 'react-native';
+import { CameraView } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 
-import { useEventContext } from '~/src/hooks/event/useEventContext';
 import { useCameraAccess } from '~/src/hooks/camera/useCameraAccess';
-import { Button } from '~/components/Button';
+
 import { Text } from '~/src/components/ui/Text';
+import { Button } from '../ui/Button';
 
 type Props = {
   open: boolean;

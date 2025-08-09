@@ -13,6 +13,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useScannerStore } from '../lib/store/useScannerStore';
 import { InviteScanner } from '../components/common/InviteScanner';
+import ErrorBoundary from '../components/common/ErrorBoundary';
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -31,29 +32,31 @@ export default function RootLayout() {
     return null;
   }
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <StatusBar backgroundColor="#000" />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1">
-        <SafeAreaProvider>
-          <TQueryProvider>
-            <AuthContextProvider>
-              <Loading>
-                <Redirect>
-                  <EventContextProvider>
-                    <Stack>
-                      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-                      <Stack.Screen name="modal" options={{ headerShown: false }} />
-                    </Stack>
-                  </EventContextProvider>
-                </Redirect>
-              </Loading>
-              <InviteScanner open={open} onClose={onClose} />
-            </AuthContextProvider>
-          </TQueryProvider>
-        </SafeAreaProvider>
-      </KeyboardAvoidingView>
-    </GestureHandlerRootView>
+    <ErrorBoundary>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar backgroundColor="#000" />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1">
+          <SafeAreaProvider>
+            <TQueryProvider>
+              <AuthContextProvider>
+                <Loading>
+                  <Redirect>
+                    <EventContextProvider>
+                      <Stack>
+                        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+                        <Stack.Screen name="modal" options={{ headerShown: false }} />
+                      </Stack>
+                    </EventContextProvider>
+                  </Redirect>
+                </Loading>
+                <InviteScanner open={open} onClose={() => onClose(false)} />
+              </AuthContextProvider>
+            </TQueryProvider>
+          </SafeAreaProvider>
+        </KeyboardAvoidingView>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }

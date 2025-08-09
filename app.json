@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "lilkingman",
-    "slug": "lilkingman",
+    "slug": "lilkingsman",
     "version": "1.0.0",
     "scheme": "lilkingman",
     "web": {
@@ -11,21 +11,12 @@
     },
     "plugins": [
       "expo-router",
-      "expo-web-browser",
       [
         "expo-camera",
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
-        }
-      ],
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
-          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
-          "isAccessMediaLocationEnabled": true
         }
       ]
     ],
@@ -41,9 +32,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jyrwaboys.lilkingman"
@@ -61,6 +50,13 @@
         "android.permission.ACCESS_MEDIA_LOCATION"
       ],
       "package": "com.jyrwaboys.lilkingman"
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a6d2559e-bb21-4c08-aedf-a5932a469040"
+      }
+    },
+    "owner": "pixel-thread"
   }
 }
