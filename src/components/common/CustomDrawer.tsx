@@ -6,13 +6,12 @@ import {
 } from '@react-navigation/drawer';
 import { usePathname, useRouter } from 'expo-router';
 import { Image, View } from 'react-native';
-import { useColorScheme } from 'nativewind';
 import { Text } from '../ui/Text';
 import Constants from 'expo-constants';
 import { useMutation } from '@tanstack/react-query';
 import http from '~/src/utils/http';
-import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import { removeUser } from '~/src/utils/storage/user';
+import { AntDesign, FontAwesome, Ionicons } from '@expo/vector-icons';
 
 export type MenuItemsT = {
   id: number;
@@ -23,13 +22,16 @@ export type MenuItemsT = {
 const menuItems: MenuItemsT[] = [
   {
     id: 1,
-    title: 'Gallery',
+    title: 'Featured Images',
     herf: 'gallery',
+  },
+  {
+    id: 2,
+    title: 'modal',
+    herf: 'modal',
   },
 ];
 export function CustomDrawerContent(props: DrawerContentComponentProps) {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
   const router = useRouter();
   const pathname = usePathname();
   const appName = Constants.expoConfig?.name || '';
@@ -52,19 +54,32 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
         <Text className="mt-5 text-xl font-bold uppercase text-black">{appName}</Text>
       </View>
 
-      <DrawerItemList {...props} />
-
       {menuItems.map((item) => (
         <DrawerItem
           focused={pathname === `/${item.herf}`}
           key={item.id}
+          style={{
+            borderRadius: 12,
+            marginHorizontal: 12,
+            marginVertical: 4,
+          }}
           label={item.title}
           // @ts-ignore
           onPress={() => router.push(`/${item.herf}`)}
         />
       ))}
 
-      <DrawerItem label={'Logout'} onPress={mutate} />
+      <DrawerItem
+        label="Logout"
+        onPress={mutate}
+        labelStyle={{ color: '#ef4444', fontWeight: '500' }} // Tailwind's red-500
+        style={{
+          backgroundColor: '#fef2f2', // Tailwind's red-50
+          marginHorizontal: 12,
+          borderRadius: 12,
+          marginVertical: 4,
+        }}
+      />
     </DrawerContentScrollView>
   );
 }

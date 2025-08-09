@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import { EventContext } from '~/src/lib/context/event';
 import { EventContextI, EventI } from '~/src/types/context/event';
@@ -9,13 +9,20 @@ type Props = { children: React.ReactNode };
 
 export const EventContextProvider = ({ children }: Props) => {
   const { user } = useAuthContext();
-
+  const [isInitialized, setIsInitialized] = React.useState(true);
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['latest-event'],
+    queryKey: ['latest-event', user?.id],
     queryFn: () => http.get<EventI>('/event/latest'),
-    enabled: !!user,
     select: (data) => data.data,
+    enabled: !!user?.id,
   });
+
+  useEffect(() => {
+    if (isInitialized && user?.id) {
+      setIsInitialized(false);
+      refetch();
+    }
+  }, [user?.id, isInitialized]);
 
   const value = {
     event: data || null,

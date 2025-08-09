@@ -2,28 +2,16 @@ import { useState, useRef } from 'react';
 import { View, RefreshControl, FlatList, ScrollView, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '~/src/components/ui/Text';
-import { useEventContext } from '~/src/hooks/event/useEventContext';
 import { Ternary } from '../../common/Ternary';
 import { useQuery } from '@tanstack/react-query';
 import http from '~/src/utils/http';
-import { NoEvent } from './NoEvent';
-import { LoadingEvent } from './LoadingEvent';
 import { ImageViewerModal } from '../../common/ImageViewerModal';
 import { RenderImageItem } from '../../common/RenderImageItems';
+import { LoadingGallery } from './LoadingEvent';
+import { ImageI } from '~/src/types/Image';
 
-type ImageT = {
-  id: string;
-  userId: string | null;
-  path: string;
-  eventId: string;
-  caption?: string;
-  likes?: number;
-  timestamp?: string;
-};
-
-export const EventScreen = () => {
-  const { event, isEventLoading, refresh } = useEventContext();
-  const [selectedImage, setSelectedImage] = useState<ImageT | null>(null);
+export const GalleryScreen = () => {
+  const [selectedImage, setSelectedImage] = useState<ImageI | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   // Animation values
@@ -35,13 +23,12 @@ export const EventScreen = () => {
     refetch: refetchImages,
     isLoading: isImagesLoading,
   } = useQuery({
-    queryKey: ['event', event?.id],
-    queryFn: () => http.get<ImageT[]>(`/photo/event/${event?.id}`),
+    queryKey: ['featured images'],
+    queryFn: () => http.get<ImageI[]>(`/photo/featured`),
     select: (data) => data.data,
-    enabled: !!event?.id,
   });
 
-  const handleImagePress = (image: ImageT) => {
+  const handleImagePress = (image: ImageI) => {
     setSelectedImage(image);
     setModalVisible(true);
 
@@ -82,21 +69,14 @@ export const EventScreen = () => {
     });
   };
 
-  if (isEventLoading) {
-    return <LoadingEvent />;
+  if (isImagesLoading) {
+    return <LoadingGallery />;
   }
 
-  if (!event) {
-    return <NoEvent />;
-  }
-  const onRefresh = () => {
-    refresh();
-    refetchImages();
-  };
   return (
     <>
       <ScrollView
-        refreshControl={<RefreshControl refreshing={isImagesLoading} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={isImagesLoading} onRefresh={refetchImages} />}
         className="flex-1 bg-background">
         <Ternary
           // condition={data?.length === 0 && !isImagesLoading}
@@ -114,7 +94,7 @@ export const EventScreen = () => {
           }
           falseComponent={
             <FlatList
-              data={data}
+              data={data || []}
               renderItem={({ item, index }) => (
                 <RenderImageItem
                   imagePress={(image) => handleImagePress(image)}

@@ -1,28 +1,16 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { View, Image, TouchableOpacity, Animated, Dimensions } from 'react-native';
-import { Skeleton } from '~/src/components/ui/Skeleton';
-import { Ternary } from '../../common/Ternary';
-
-type ImageT = {
-  id: string;
-  userId: string | null;
-  path: string;
-  eventId: string;
-  caption?: string;
-  likes?: number;
-  timestamp?: string;
-};
+import { ImageI } from '~/src/types/Image';
 
 type Props = {
-  item: ImageT;
+  item: ImageI;
   index: number;
-  imagePress: (image: ImageT) => void;
+  imagePress: (image: ImageI) => void;
 };
 
 export const RenderImageItem = ({ item, index, imagePress }: Props) => {
-  const [isLoading, setIsLoading] = useState(true);
   const windowWidth = Dimensions.get('window').width;
-  const imageSize = windowWidth / 3 - 4; // 3 columns with small gap
+  const imageSize = windowWidth / 3 - 5; // 3 columns with small gap
 
   // Add a slight staggered animation effect
   const itemAnimValue = useRef(new Animated.Value(0)).current;
@@ -49,16 +37,7 @@ export const RenderImageItem = ({ item, index, imagePress }: Props) => {
         className="m-1 overflow-hidden rounded-xl bg-muted"
         activeOpacity={0.9}>
         <View>
-          {/* {isLoading && ( */}
-          {/*   <View */}
-          {/*     style={{ width: imageSize, height: imageSize }} */}
-          {/*     className="items-center justify-center"> */}
-          {/*     <Skeleton className="absolute h-full w-full rounded-xl" /> */}
-          {/*   </View> */}
-          {/* )} */}
           <Image
-            onLoadStart={() => setIsLoading(true)}
-            onLoadEnd={() => setIsLoading(false)}
             source={{ uri: item.path || '../../../assets/splash.png' }}
             style={{ width: imageSize, height: imageSize }}
             className="rounded-xl"

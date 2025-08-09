@@ -10,16 +10,7 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: true,
         tabBarShowLabel: true,
-        header: ({ options }) => (
-          <CustomHeader
-            title={options.title}
-            showRightIcon={true}
-            rightIconName="camera-outline"
-            onRightIconPress={() => {
-              console.log('Camera button pressed');
-            }}
-          />
-        ),
+        header: ({ options }) => <CustomHeader title={options.title} showRightIcon={true} />,
       }}>
       <Tabs.Screen
         name="index"
@@ -31,7 +22,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="images"
         options={{
-          title: 'Gallery',
+          title: 'My Images',
           tabBarIcon: ({ color }) => <TabBarIcon name="images" color={color} />,
         }}
       />

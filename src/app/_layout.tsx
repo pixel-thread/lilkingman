@@ -11,7 +11,9 @@ import { EventContextProvider } from '../components/provider/event';
 import { Loading } from '../components/common/Loading';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { Container } from '../components/common/Container';
+import { useScannerStore } from '../lib/store/useScannerStore';
+import { InviteScanner } from '../components/common/InviteScanner';
+
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(drawer)',
@@ -19,6 +21,7 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const [isMounted, setIsMounted] = React.useState(false);
+  const { open, onValueChange: onClose } = useScannerStore();
 
   React.useEffect(() => {
     setIsMounted(true);
@@ -28,27 +31,29 @@ export default function RootLayout() {
     return null;
   }
   return (
-    <SafeAreaProvider>
-      <TQueryProvider>
-        <AuthContextProvider>
-          <EventContextProvider>
-            <Loading>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <StatusBar backgroundColor="#000" />
-                <KeyboardAvoidingView
-                  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                  className="flex-1">
-                  <Redirect>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar backgroundColor="#000" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1">
+        <SafeAreaProvider>
+          <TQueryProvider>
+            <AuthContextProvider>
+              <Loading>
+                <Redirect>
+                  <EventContextProvider>
                     <Stack>
                       <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+                      <Stack.Screen name="modal" options={{ headerShown: false }} />
                     </Stack>
-                  </Redirect>
-                </KeyboardAvoidingView>
-              </GestureHandlerRootView>
-            </Loading>
-          </EventContextProvider>
-        </AuthContextProvider>
-      </TQueryProvider>
-    </SafeAreaProvider>
+                  </EventContextProvider>
+                </Redirect>
+              </Loading>
+              <InviteScanner open={open} onClose={onClose} />
+            </AuthContextProvider>
+          </TQueryProvider>
+        </SafeAreaProvider>
+      </KeyboardAvoidingView>
+    </GestureHandlerRootView>
   );
 }

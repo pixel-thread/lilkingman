@@ -3,14 +3,11 @@ import { EventScreen } from '~/src/components/screen/event';
 import { CustomHeader } from '~/src/components/common/CustomHeader';
 import { CustomLoadingHeader } from '~/src/components/common/CustomLoadingHeader';
 import { useEventContext } from '~/src/hooks/event/useEventContext';
-import { NoEvent } from '~/src/components/screen/event/NoEvent';
 import { Container } from '~/src/components/common/Container';
-import { TouchableOpacity, View } from 'react-native';
 import { EventRightHeader } from '~/src/components/screen/event/EventRightHeader';
 
 export default function Home() {
   const { event, isEventLoading } = useEventContext();
-
   return (
     <>
       <Stack.Screen
@@ -22,7 +19,7 @@ export default function Home() {
               <CustomHeader
                 rightHeader={<EventRightHeader />}
                 title={event?.name || 'Event Gallery'}
-                showRightIcon={!!event}
+                showRightIcon
               />
             ),
         }}
