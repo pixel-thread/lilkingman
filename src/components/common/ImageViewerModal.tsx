@@ -12,7 +12,6 @@ import {
   ToastAndroid,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { Text } from '~/src/components/ui/Text';
 import { useFileDownload } from '~/src/hooks/download/useFileDownload';
 import { ImageI } from '~/src/types/Image';
@@ -55,7 +54,6 @@ export const ImageViewerModal = ({
 
   return (
     <Modal transparent={true} visible={modalVisible} onRequestClose={closeModal}>
-      {/* <BlurView intensity={90} tint="default" style={StyleSheet.absoluteFill}> */}
       <Animated.View
         style={[
           StyleSheet.absoluteFill,
@@ -77,14 +75,11 @@ export const ImageViewerModal = ({
             {/* Header */}
             <View className="absolute bottom-10 left-0 right-0 z-10 flex-row items-center justify-between p-4">
               <View>
-                <Text className="font-medium text-white">{selectedImage.caption || 'Photo'}</Text>
+                <Text className="font-medium text-white">{selectedImage.name || 'Photo'}</Text>
                 <Text className="text-sm text-gray-400">
-                  {selectedImage.timestamp || 'Just now'}
+                  {selectedImage.createdAt || 'Just now'}
                 </Text>
               </View>
-              {/* <TouchableOpacity onPress={closeModal} className="rounded-full bg-black/30 p-2"> */}
-              {/*   <Ionicons name="close" size={24} color="white" /> */}
-              {/* </TouchableOpacity> */}
             </View>
 
             {/* Image */}
@@ -123,7 +118,6 @@ export const ImageViewerModal = ({
           </Animated.View>
         )}
       </TouchableOpacity>
-      {/* </BlurView> */}
     </Modal>
   );
 };

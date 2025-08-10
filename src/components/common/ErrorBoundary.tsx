@@ -56,7 +56,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, State> {
       else console.error('ErrorBoundary caught an error:', error, componentStack);
     } catch (e) {
       // Swallow logging errors to avoid infinite loops
-      // eslint-disable-next-line no-console
+
       console.error('Error in ErrorBoundary.onError handler', e);
     }
   }
