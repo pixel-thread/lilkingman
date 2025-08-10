@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
-import { View, TouchableOpacity, Modal, StyleSheet, Dimensions } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Modal,
+  StyleSheet,
+  Dimensions,
+  Platform,
+  Alert,
+  ToastAndroid,
+} from 'react-native';
 import { CameraView } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -11,6 +20,7 @@ import z from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import http from '~/src/utils/http';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
+import { EVENTS_ENDPOINT } from '~/src/lib/constants/endpoints/event';
 
 type Props = {
   open: boolean;
@@ -28,8 +38,9 @@ export const InviteScanner = ({ open, onClose }: Props) => {
 
   const { mutate } = useMutation({
     mutationKey: ['latest-event', user?.id],
-    mutationFn: (id: string) => http.post(`/event/${id}/assign-user`),
+    mutationFn: (id: string) => http.post(EVENTS_ENDPOINT.POST_ADD_EVENT_USER.replace(':id', id)),
     onSuccess: () => {
+      Alert.alert('Success', 'Invite accepted', [{ text: 'Close' }]);
       queryClient.invalidateQueries({ queryKey: ['latest-event', user?.id] });
     },
   });
@@ -57,9 +68,6 @@ export const InviteScanner = ({ open, onClose }: Props) => {
           setTimeout(() => setCameraVisible(false), 250);
           return;
         } catch (procErr) {
-          console.error('Error processing invite:', procErr);
-          // optionally show a user-facing error (toast/modal)
-          // re-enable scanning so user can retry
           setScanned(false);
           return;
         }
@@ -68,7 +76,7 @@ export const InviteScanner = ({ open, onClose }: Props) => {
       setScanned(false);
     } catch (err) {
       // Defensive catch: unexpected errors in parsing/processing
-      console.error('Unexpected error handling scanned data:', err);
+      Alert.alert('Error', 'Unexpected error occurred', [{ text: 'Close' }]);
       setScanned(false);
     }
   };

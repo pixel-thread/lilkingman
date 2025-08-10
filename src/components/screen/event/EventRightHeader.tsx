@@ -2,6 +2,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { useMutation } from '@tanstack/react-query';
 import { TouchableOpacity, View } from 'react-native';
 import { useEventContext } from '~/src/hooks/event/useEventContext';
+import { EVENTS_ENDPOINT } from '~/src/lib/constants/endpoints/event';
 import { useScannerStore } from '~/src/lib/store/useScannerStore';
 import http from '~/src/utils/http';
 
@@ -11,7 +12,8 @@ export const EventRightHeader = () => {
 
   const { mutate: removeEvent } = useMutation({
     mutationKey: ['remove-event'],
-    mutationFn: () => http.post(`/event/${event?.id}/remove-user`),
+    mutationFn: () =>
+      http.post(EVENTS_ENDPOINT.POST_REMOVE_EVENT_USER.replace(':id', event?.id ?? '')),
     onSuccess: () => refresh(),
   });
 

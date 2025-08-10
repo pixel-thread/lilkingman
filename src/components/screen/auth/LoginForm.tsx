@@ -13,6 +13,7 @@ import http from '~/src/utils/http';
 import { logger } from '~/src/utils/logger';
 import { useState } from 'react';
 import { OtpLoginForm } from './OtpLoginForm';
+import { AUTH_ENDPOINT } from '~/src/lib/constants/endpoints/auth';
 
 type FormValue = { email: string };
 
@@ -34,7 +35,7 @@ export const LoginForm = () => {
   });
   const { mutate, isPending } = useMutation({
     mutationKey: ['auth'],
-    mutationFn: (data: FormValue) => http.post('/auth/init', data),
+    mutationFn: (data: FormValue) => http.post(AUTH_ENDPOINT.POST_LOGIN_INIT, data),
     onSuccess: (data) => {
       if (data.success) {
         setIsOtpSent(true);

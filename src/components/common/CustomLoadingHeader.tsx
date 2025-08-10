@@ -1,9 +1,7 @@
-import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Skeleton } from '~/src/components/ui/Skeleton';
-import { Ionicons } from '@expo/vector-icons';
 
 type CustomLoadingHeaderProps = {
   backgroundColor?: string;

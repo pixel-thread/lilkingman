@@ -10,6 +10,8 @@ import { NoEvent } from './NoEvent';
 import { LoadingEvent } from './LoadingEvent';
 import { ImageViewerModal } from '../../common/ImageViewerModal';
 import { RenderImageItem } from '../../common/RenderImageItems';
+import { EVENTS_ENDPOINT } from '~/src/lib/constants/endpoints/event';
+import { PHOTOS_ENDPOINT } from '~/src/lib/constants/endpoints/photo';
 
 type ImageT = {
   id: string;
@@ -36,7 +38,8 @@ export const EventScreen = () => {
     isLoading: isImagesLoading,
   } = useQuery({
     queryKey: ['event', event?.id],
-    queryFn: () => http.get<ImageT[]>(`/photo/event/${event?.id}`),
+    queryFn: () =>
+      http.get<ImageT[]>(PHOTOS_ENDPOINT.GET_EVENT_PHOTO.replace(':id', event?.id ?? '')),
     select: (data) => data.data,
     enabled: !!event?.id,
   });

@@ -11,6 +11,7 @@ import http from '~/src/utils/http';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import { setToken } from '~/src/utils/storage/token';
 import { router } from 'expo-router';
+import { AUTH_ENDPOINT } from '~/src/lib/constants/endpoints/auth';
 
 type FormValue = {
   email: string;
@@ -18,7 +19,7 @@ type FormValue = {
 };
 
 export const OtpLoginForm = ({ email }: { email: string }) => {
-  const { refresh, isAuthLoading } = useAuthContext();
+  const { isAuthLoading } = useAuthContext();
   const {
     formState: { errors },
     handleSubmit,
@@ -33,7 +34,7 @@ export const OtpLoginForm = ({ email }: { email: string }) => {
 
   const { mutate: mutateOtp, isPending: isPendingOtp } = useMutation({
     mutationKey: ['user'],
-    mutationFn: (data: { email: string; otp: string }) => http.post('/auth', data),
+    mutationFn: (data: { email: string; otp: string }) => http.post(AUTH_ENDPOINT.POST_LOGIN, data),
     onSuccess: async (data) => {
       if (data.success) {
         if (data.token) {

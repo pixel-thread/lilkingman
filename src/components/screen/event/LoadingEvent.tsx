@@ -11,8 +11,6 @@ export const LoadingEvent = () => {
 
   return (
     <>
-      <EventHeader isLoading={true} event={null} />
-
       <FlatList
         data={Array.from({ length: 24 })}
         renderItem={({ index }) => (

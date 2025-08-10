@@ -2,7 +2,6 @@ import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
   DrawerItem,
-  DrawerItemList,
 } from '@react-navigation/drawer';
 import { usePathname, useRouter } from 'expo-router';
 import { Image, View } from 'react-native';
@@ -11,7 +10,6 @@ import Constants from 'expo-constants';
 import { useMutation } from '@tanstack/react-query';
 import http from '~/src/utils/http';
 import { removeUser } from '~/src/utils/storage/user';
-import { AntDesign, FontAwesome, Ionicons } from '@expo/vector-icons';
 
 export type MenuItemsT = {
   id: number;

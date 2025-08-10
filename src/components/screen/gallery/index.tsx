@@ -9,6 +9,7 @@ import { ImageViewerModal } from '../../common/ImageViewerModal';
 import { RenderImageItem } from '../../common/RenderImageItems';
 import { LoadingGallery } from './LoadingEvent';
 import { ImageI } from '~/src/types/Image';
+import { PHOTOS_ENDPOINT } from '~/src/lib/constants/endpoints/photo';
 
 export const GalleryScreen = () => {
   const [selectedImage, setSelectedImage] = useState<ImageI | null>(null);
@@ -24,7 +25,7 @@ export const GalleryScreen = () => {
     isLoading: isImagesLoading,
   } = useQuery({
     queryKey: ['featured images'],
-    queryFn: () => http.get<ImageI[]>(`/photo/featured`),
+    queryFn: () => http.get<ImageI[]>(PHOTOS_ENDPOINT.GET_FEATURED_PHOTO),
     select: (data) => data.data,
   });
 

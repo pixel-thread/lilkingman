@@ -5,6 +5,7 @@ import { RenderImageItem } from '@components/common/RenderImageItems';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import http from '~/src/utils/http';
+import { PHOTOS_ENDPOINT } from '~/src/lib/constants/endpoints/photo';
 
 type ImageT = {
   id: string;
@@ -27,7 +28,8 @@ export const PhotoScreen = () => {
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: ['my-photos', user?.id],
-    queryFn: () => http.get<ImageT[]>(`/photo/user/${user?.id}`),
+    queryFn: () =>
+      http.get<ImageT[]>(PHOTOS_ENDPOINT.GET_USERS_PHOTOS.replace(':id', user?.id ?? '')),
     select: (data) => data.data,
     enabled: !!user?.id,
   });
