@@ -6,11 +6,13 @@ import { TabBarIcon } from '~/src/components/common/TabBarIcon';
 export default function TabLayout() {
   return (
     <Tabs
-      tabBar={(props) => <CustomTabBar {...props} />}
+      tabBar={(props: any) => <CustomTabBar {...props} />}
       screenOptions={{
         headerShown: true,
         tabBarShowLabel: true,
-        header: ({ options }) => <CustomHeader title={options.title} showRightIcon={true} />,
+        header: ({ options }: { options: { title: string } }) => (
+          <CustomHeader title={options.title} showRightIcon={true} />
+        ),
       }}>
       <Tabs.Screen
         name="index"
@@ -24,6 +26,13 @@ export default function TabLayout() {
         options={{
           title: 'My Images',
           tabBarIcon: ({ color }) => <TabBarIcon name="images" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="invite"
+        options={{
+          title: 'Event Invite',
+          tabBarIcon: ({ color }) => <TabBarIcon name="person-add" color={color} />,
         }}
       />
     </Tabs>
