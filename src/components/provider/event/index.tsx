@@ -12,14 +12,14 @@ export const EventContextProvider = ({ children }: Props) => {
   const { user } = useAuthContext();
   const [isInitialized, setIsInitialized] = React.useState(true);
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['latest-event', user?.id],
+    queryKey: ['latest-event', user],
     queryFn: () => http.get<EventI>(EVENTS_ENDPOINT.GET_LATEST_EVENT),
     select: (data) => data.data,
-    enabled: !!user?.id,
+    enabled: !!user ? true : false,
   });
 
   useEffect(() => {
-    if (isInitialized && user?.id) {
+    if (isInitialized && user) {
       setIsInitialized(false);
       refetch();
     }

@@ -6,20 +6,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import http from '~/src/utils/http';
 import { PHOTOS_ENDPOINT } from '~/src/lib/constants/endpoints/photo';
-
-type ImageT = {
-  id: string;
-  userId: string | null;
-  path: string;
-  eventId: string;
-  caption?: string;
-  likes?: number;
-  timestamp?: string;
-};
+import { NoPhoto } from './NoPhoto';
+import { ImageI } from '~/src/types/Image';
 
 export const PhotoScreen = () => {
   const { user } = useAuthContext();
-  const [selectedImage, setSelectedImage] = useState<ImageT | null>(null);
+  const [selectedImage, setSelectedImage] = useState<ImageI | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   // Animation values
@@ -28,13 +20,12 @@ export const PhotoScreen = () => {
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: ['my-photos', user?.id],
-    queryFn: () =>
-      http.get<ImageT[]>(PHOTOS_ENDPOINT.GET_USERS_PHOTOS.replace(':id', user?.id ?? '')),
+    queryFn: () => http.get<ImageI[]>(PHOTOS_ENDPOINT.GET_USERS_PHOTOS.replace(':id', user?.id!)),
     select: (data) => data.data,
     enabled: !!user?.id,
   });
 
-  const handleImagePress = (image: ImageT) => {
+  const handleImagePress = (image: ImageI) => {
     setSelectedImage(image);
     setModalVisible(true);
 
@@ -76,6 +67,10 @@ export const PhotoScreen = () => {
   };
 
   const onRefresh = () => refetch();
+
+  if (data?.length === 0) {
+    return <NoPhoto refetch={refetch} isLoading={isLoading} />;
+  }
 
   return (
     <View className="flex-1 bg-background">

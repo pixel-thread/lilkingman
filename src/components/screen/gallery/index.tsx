@@ -7,9 +7,10 @@ import { useQuery } from '@tanstack/react-query';
 import http from '~/src/utils/http';
 import { ImageViewerModal } from '../../common/ImageViewerModal';
 import { RenderImageItem } from '../../common/RenderImageItems';
-import { LoadingGallery } from './LoadingEvent';
+import { LoadingGallery } from './LoadingGallery';
 import { ImageI } from '~/src/types/Image';
 import { PHOTOS_ENDPOINT } from '~/src/lib/constants/endpoints/photo';
+import { NoGallaryImage } from './NoGallaryImage';
 
 export const GalleryScreen = () => {
   const [selectedImage, setSelectedImage] = useState<ImageI | null>(null);
@@ -80,8 +81,7 @@ export const GalleryScreen = () => {
         refreshControl={<RefreshControl refreshing={isImagesLoading} onRefresh={refetchImages} />}
         className="flex-1 bg-background">
         <Ternary
-          // condition={data?.length === 0 && !isImagesLoading}
-          condition={false}
+          condition={data?.length === 0 && !isImagesLoading}
           trueComponent={
             <View className="flex-1 items-center justify-center p-10">
               <View className="mb-4 items-center justify-center rounded-full bg-gray-100 p-4">

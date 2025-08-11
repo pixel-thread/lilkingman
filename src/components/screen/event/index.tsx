@@ -10,7 +10,6 @@ import { NoEvent } from './NoEvent';
 import { LoadingEvent } from './LoadingEvent';
 import { ImageViewerModal } from '../../common/ImageViewerModal';
 import { RenderImageItem } from '../../common/RenderImageItems';
-import { EVENTS_ENDPOINT } from '~/src/lib/constants/endpoints/event';
 import { PHOTOS_ENDPOINT } from '~/src/lib/constants/endpoints/photo';
 
 type ImageT = {

@@ -1,7 +1,7 @@
-import { EndpointT } from "@/types/endpoints";
+import { EndpointT } from '@/types/endpoints';
 
-type UsersEndpointKeys = "GET_USERS";
+type UsersEndpointKeys = 'GET_USERS';
 
 export const USERS_ENDPOINT: EndpointT<UsersEndpointKeys> = {
-  GET_USERS: "/user",
+  GET_USERS: '/user',
 };

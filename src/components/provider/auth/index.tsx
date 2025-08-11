@@ -1,61 +1,74 @@
 import { useMutation } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
+import { AUTH_ENDPOINT } from '~/src/lib/constants/endpoints/auth';
 import { AuthContext } from '~/src/lib/context/auth';
 import { AuthContextI } from '~/src/types/context';
 import { UserI } from '~/src/types/user';
 import http from '~/src/utils/http';
-import { logger } from '~/src/utils/logger';
 import { getToken, removeToken } from '~/src/utils/storage/token';
 import { getUser, removeUser } from '~/src/utils/storage/user';
 
-type Props = {
-  children: React.ReactNode;
-};
+type Props = { children: React.ReactNode };
+
 export const AuthContextProvider = ({ children }: Props) => {
   const [user, setUser] = React.useState<UserI | null>(null);
   const [token, setToken] = React.useState<string | null>(null);
-  const { mutate, isPending } = useMutation({
+  const [isInitializing, setIsInitializing] = React.useState(true); // to handle first load
+
+  const { mutate: fetchUser, isPending } = useMutation({
     mutationKey: ['user'],
-    mutationFn: () => http.get<UserI>('/auth'),
+    mutationFn: () => http.get<UserI>(AUTH_ENDPOINT.GET_ME),
     onSuccess: (data) => {
       if (data.success) {
         setUser(data.data);
-        return data.data;
+        return data;
       }
-      setUser(null);
-      removeUser();
-      setToken(null);
-      removeToken();
-      return data;
+      clearAuth();
+      return null;
+    },
+    onError: () => {
+      clearAuth();
     },
   });
 
-  const getTokenAndUserFromStorage = async () => {
-    const token = await getToken();
-    if (token) {
-      setToken(token);
-      const user = await getUser();
-      if (user) {
-        setUser(JSON.parse(user));
-      }
-    }
-    return;
+  const clearAuth = () => {
+    setUser(null);
+    setToken(null);
+    removeUser();
+    removeToken();
   };
 
+  // Load token + local user instantly
+  const initAuthFromStorage = async () => {
+    const storedToken = await getToken();
+    const storedUser = await getUser();
+
+    if (storedToken) {
+      setToken(storedToken);
+    }
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setIsInitializing(false);
+  };
+
+  // On mount: load from storage immediately
   useEffect(() => {
-    getTokenAndUserFromStorage();
+    initAuthFromStorage();
   }, []);
 
+  // After token is set, validate with server
   useEffect(() => {
-    if (token !== '') {
-      mutate();
+    if (!isInitializing && token) {
+      fetchUser();
     }
-  }, [token]);
+  }, [token, isInitializing]);
 
   const value: AuthContextI = {
-    user: user,
-    refresh: () => mutate(),
-    isAuthLoading: isPending,
-  } satisfies AuthContextI;
+    user,
+    refresh: fetchUser,
+    isAuthLoading: isPending || isInitializing,
+  };
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -14,6 +14,6 @@ export const setUser = async (user: UserI) => {
 
 // remove token from async storage
 export const removeUser = async () => {
-  removeToken();
+  await removeToken();
   return await AsyncStorage.removeItem(AUTH_USER_KEY);
 };

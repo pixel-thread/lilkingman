@@ -2,7 +2,6 @@ import { FlatList, View, Dimensions } from 'react-native';
 import { Skeleton } from '../../ui/Skeleton';
 import { RefreshControl } from 'react-native-gesture-handler';
 import { useEventContext } from '~/src/hooks/event/useEventContext';
-import { EventHeader } from './EventHeader';
 
 export const LoadingEvent = () => {
   const { refresh } = useEventContext();
@@ -13,7 +12,7 @@ export const LoadingEvent = () => {
     <>
       <FlatList
         data={Array.from({ length: 24 })}
-        renderItem={({ index }) => (
+        renderItem={() => (
           <View
             className="m-1 overflow-hidden rounded-xl"
             style={{ width: imageSize, height: imageSize }}>

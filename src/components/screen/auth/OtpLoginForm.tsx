@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Button } from '~/src/components/ui/Button';
 import { Input } from '~/src/components/ui/Input';
 import { Text } from '~/src/components/ui/Text';
@@ -19,7 +19,7 @@ type FormValue = {
 };
 
 export const OtpLoginForm = ({ email }: { email: string }) => {
-  const { isAuthLoading } = useAuthContext();
+  const { isAuthLoading, refresh } = useAuthContext();
   const {
     formState: { errors },
     handleSubmit,
@@ -40,9 +40,13 @@ export const OtpLoginForm = ({ email }: { email: string }) => {
         if (data.token) {
           await setToken(data.token);
           router.replace('/');
+          refresh();
         }
         return data;
       }
+
+      Alert.alert('Error', data.message, [{ text: 'Close' }]);
+      return data;
     },
   });
 

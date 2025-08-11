@@ -9,12 +9,7 @@
         "EXPO_PUBLIC_IS_BETA": "true",
         "EXPO_PUBLIC_API_URL": "https://lilkingman.vercel.app/api"
       },
-      "android": {
-        "autoIncrement": true,
-        "buildType": "apk",
-        "developmentClient": false,
-        "distribution": "store"
-      }
+      "android": { "buildType": "apk" }
     },
     "development": {
       "developmentClient": true,

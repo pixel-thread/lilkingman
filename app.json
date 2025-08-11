@@ -18,7 +18,8 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -55,7 +56,8 @@
       "router": {},
       "eas": {
         "projectId": "a6d2559e-bb21-4c08-aedf-a5932a469040"
-      }
+      },
+      "EXPO_PUBLIC_GOOGLE_CLIENT_ID": "798280493059-odvu4m637bl1b8m6o0rlu5giaoa0ic2u.apps.googleusercontent.com"
     },
     "owner": "pixel-thread"
   }
