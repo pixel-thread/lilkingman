@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEventContext } from '~/src/hooks/event/useEventContext';
 import { Text } from '../../ui/Text';
 import { Button } from '../../ui/Button';
+import { Ternary } from '../../common/Ternary';
 
 export const NoEvent = () => {
   const { refresh, isEventLoading } = useEventContext();
@@ -29,7 +30,11 @@ export const NoEvent = () => {
           onPress={refresh}
           className="h-16 w-full flex-row gap-x-2 rounded-full">
           <Ionicons name="refresh-outline" size={20} color="#6b7280" className="mr-2" />
-          <Text className="text-muted-foreground">Check Again</Text>
+          <Ternary
+            condition={isEventLoading}
+            trueComponent={<Text className="text-muted-foreground">Checking</Text>}
+            falseComponent={<Text className="text-muted-foreground">Check Again</Text>}
+          />
         </Button>
       </View>
     </View>
