@@ -12,7 +12,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useScannerStore } from '../lib/store/useScannerStore';
 import { InviteScanner } from '../components/common/InviteScanner';
-import ErrorBoundary from '../components/common/ErrorBoundary';
 import { ScreenCapturePrevent } from '../components/common/ScreenCapturePrevent';
 
 export const unstable_settings = {
@@ -24,13 +23,13 @@ export default function RootLayout() {
   const { open, onValueChange: onClose } = useScannerStore();
 
   return (
-    <ScreenCapturePrevent>
-      <TQueryProvider>
-        <AuthContextProvider>
-          <Loading>
-            <Redirect>
-              <EventContextProvider>
-                <SafeAreaProvider>
+    <SafeAreaProvider>
+      <ScreenCapturePrevent>
+        <TQueryProvider>
+          <AuthContextProvider>
+            <Loading>
+              <Redirect>
+                <EventContextProvider>
                   <StatusBar translucent style="dark" />
                   <GestureHandlerRootView style={{ flex: 1 }}>
                     <KeyboardAvoidingView
@@ -46,12 +45,12 @@ export default function RootLayout() {
                       <InviteScanner open={open} onClose={() => onClose(false)} />
                     </KeyboardAvoidingView>
                   </GestureHandlerRootView>
-                </SafeAreaProvider>
-              </EventContextProvider>
-            </Redirect>
-          </Loading>
-        </AuthContextProvider>
-      </TQueryProvider>
-    </ScreenCapturePrevent>
+                </EventContextProvider>
+              </Redirect>
+            </Loading>
+          </AuthContextProvider>
+        </TQueryProvider>
+      </ScreenCapturePrevent>
+    </SafeAreaProvider>
   );
 }
