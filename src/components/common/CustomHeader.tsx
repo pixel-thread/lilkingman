@@ -2,7 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, StatusBar, StyleSheet } from 'react-native';
 import { useNavigation, useRouter } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
-import { Ionicons, AntDesign } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Text } from '~/src/components/ui/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 

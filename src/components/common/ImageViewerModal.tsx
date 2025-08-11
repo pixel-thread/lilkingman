@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text } from '~/src/components/ui/Text';
 import { useFileDownload } from '~/src/hooks/download/useFileDownload';
 import { ImageI } from '~/src/types/Image';
+import moment = require('moment');
 
 type Props = {
   image: ImageI | null;
@@ -77,7 +78,7 @@ export const ImageViewerModal = ({
               <View>
                 <Text className="font-medium text-white">{selectedImage.name || 'Photo'}</Text>
                 <Text className="text-sm text-gray-400">
-                  {selectedImage.createdAt || 'Just now'}
+                  {moment(selectedImage.createdAt).fromNow() || 'Just now'}
                 </Text>
               </View>
             </View>

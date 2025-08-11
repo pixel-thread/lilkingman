@@ -4,12 +4,11 @@ import {
   DrawerItem,
 } from '@react-navigation/drawer';
 import { usePathname, useRouter } from 'expo-router';
-import { Image, View } from 'react-native';
-import { Text } from '../ui/Text';
-import Constants from 'expo-constants';
 import { useMutation } from '@tanstack/react-query';
 import http from '~/src/utils/http';
 import { removeUser } from '~/src/utils/storage/user';
+import { CustomAvatar } from './CustomAvatar';
+import { AUTH_ENDPOINT } from '~/src/lib/constants/endpoints/auth';
 
 export type MenuItemsT = {
   id: number;
@@ -23,35 +22,23 @@ const menuItems: MenuItemsT[] = [
     title: 'Featured Images',
     herf: 'gallery',
   },
-  {
-    id: 2,
-    title: 'modal',
-    herf: 'modal',
-  },
 ];
 export function CustomDrawerContent(props: DrawerContentComponentProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const appName = Constants.expoConfig?.name || '';
 
   const { mutate } = useMutation({
-    mutationFn: () => http.post('/auth/logout'),
+    mutationFn: () => http.post(AUTH_ENDPOINT.POST_LOGOUT),
     onSuccess: async () => {
-      removeUser();
       router.replace('/auth');
+      removeUser();
+      return;
     },
   });
 
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 0, flex: 1 }}>
-      <View className="items-center p-4">
-        <Image
-          source={require('../../assets/splash.png')}
-          style={{ width: 100, height: 100, borderRadius: 50 }}
-        />
-        <Text className="mt-5 text-xl font-bold uppercase text-black">{appName}</Text>
-      </View>
-
+      <CustomAvatar />
       {menuItems.map((item) => (
         <DrawerItem
           focused={pathname === `/${item.herf}`}

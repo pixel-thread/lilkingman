@@ -1,14 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Modal,
-  StyleSheet,
-  Dimensions,
-  Platform,
-  Alert,
-  ToastAndroid,
-} from 'react-native';
+import { View, TouchableOpacity, Modal, StyleSheet, Dimensions, Alert } from 'react-native';
 import { CameraView } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -21,12 +12,15 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import http from '~/src/utils/http';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import { EVENTS_ENDPOINT } from '~/src/lib/constants/endpoints/event';
+import { useEventContext } from '~/src/hooks/event/useEventContext';
 
 type Props = {
   open: boolean;
   onClose: () => void;
 };
-const uuidSchema = z.string().uuid();
+
+const uuidSchema = z.uuid();
+
 export const InviteScanner = ({ open, onClose }: Props) => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
@@ -37,11 +31,14 @@ export const InviteScanner = ({ open, onClose }: Props) => {
   const [scanned, setScanned] = useState(false);
 
   const { mutate } = useMutation({
-    mutationKey: ['latest-event', user?.id],
+    mutationKey: ['latest-event', user],
     mutationFn: (id: string) => http.post(EVENTS_ENDPOINT.POST_ADD_EVENT_USER.replace(':id', id)),
-    onSuccess: () => {
-      Alert.alert('Success', 'Invite accepted', [{ text: 'Close' }]);
-      queryClient.invalidateQueries({ queryKey: ['latest-event', user?.id] });
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ['latest-event', user] });
+        return;
+      }
+      Alert.alert('Error', data.message);
     },
   });
 
@@ -85,11 +82,13 @@ export const InviteScanner = ({ open, onClose }: Props) => {
     if (!isGranted) {
       await requestPermission();
     }
+    setScanned(false); // Reset each time you open
     setCameraVisible(true);
   };
 
   const closeCamera = () => {
     setCameraVisible(false);
+    setScanned(false); // Also reset on close
     onClose();
   };
 
