@@ -11,7 +11,7 @@ type Props = { children: React.ReactNode };
 export const EventContextProvider = ({ children }: Props) => {
   const { user } = useAuthContext();
   const [isInitialized, setIsInitialized] = React.useState(true);
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['latest-event', user],
     queryFn: () => http.get<EventI>(EVENTS_ENDPOINT.GET_LATEST_EVENT),
     select: (data) => data.data,
@@ -27,7 +27,7 @@ export const EventContextProvider = ({ children }: Props) => {
 
   const value = {
     event: data || null,
-    isEventLoading: isLoading,
+    isEventLoading: isFetching || isLoading,
     refresh: refetch,
   } satisfies EventContextI;
 
