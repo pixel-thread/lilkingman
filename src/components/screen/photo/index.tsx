@@ -8,6 +8,7 @@ import http from '~/src/utils/http';
 import { PHOTOS_ENDPOINT } from '~/src/lib/constants/endpoints/photo';
 import { NoPhoto } from './NoPhoto';
 import { ImageI } from '~/src/types/Image';
+import { LoadingGallery } from '../gallery/LoadingGallery';
 
 export const PhotoScreen = () => {
   const { user } = useAuthContext();
@@ -18,7 +19,7 @@ export const PhotoScreen = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
-  const { data, refetch, isLoading } = useQuery({
+  const { data, refetch, isLoading, isFetching } = useQuery({
     queryKey: ['my-photos', user?.id],
     queryFn: () => http.get<ImageI[]>(PHOTOS_ENDPOINT.GET_USERS_PHOTOS.replace(':id', user?.id!)),
     select: (data) => data.data,
@@ -67,6 +68,10 @@ export const PhotoScreen = () => {
   };
 
   const onRefresh = () => refetch();
+
+  if (isFetching || isLoading) {
+    return <LoadingGallery />;
+  }
 
   if (data?.length === 0) {
     return <NoPhoto refetch={refetch} isLoading={isLoading} />;
