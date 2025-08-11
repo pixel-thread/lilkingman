@@ -35,6 +35,7 @@ export const EventScreen = () => {
     data,
     refetch: refetchImages,
     isLoading: isImagesLoading,
+    isFetching: isImagesFetching,
   } = useQuery({
     queryKey: ['event', event?.id],
     queryFn: () =>
@@ -84,13 +85,14 @@ export const EventScreen = () => {
     });
   };
 
-  if (isEventLoading) {
+  if (isEventLoading || isImagesLoading || isImagesFetching) {
     return <LoadingEvent />;
   }
 
   if (!event) {
     return <NoEvent />;
   }
+
   const onRefresh = () => {
     refresh();
     refetchImages();
@@ -98,7 +100,9 @@ export const EventScreen = () => {
   return (
     <>
       <ScrollView
-        refreshControl={<RefreshControl refreshing={isImagesLoading} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={isImagesLoading || isImagesFetching} onRefresh={onRefresh} />
+        }
         className="flex-1 bg-background">
         <Ternary
           // condition={data?.length === 0 && !isImagesLoading}
