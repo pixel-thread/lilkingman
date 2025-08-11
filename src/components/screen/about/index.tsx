@@ -21,10 +21,6 @@ export const AboutScreen = () => {
     Linking.openURL('mailto:support@lilkingman.com');
   };
 
-  const handleVisitWebsite = () => {
-    Linking.openURL('https://lilkingman.com');
-  };
-
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -58,8 +54,8 @@ export const AboutScreen = () => {
             <CardTitle>Features</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <View className="space-y-4">
-              <View className="flex-row items-start space-x-3">
+            <View className="gap-y-5">
+              <View className="flex-row items-start gap-x-3">
                 <Ionicons name="camera-outline" size={24} color="#6b7280" />
                 <View className="flex-1">
                   <Text className="font-medium text-foreground">Photo Capture</Text>
@@ -72,7 +68,7 @@ export const AboutScreen = () => {
 
               <Separator />
 
-              <View className="flex-row items-start space-x-3">
+              <View className="flex-row items-start gap-x-3">
                 <Ionicons name="people-outline" size={24} color="#6b7280" />
                 <View className="flex-1">
                   <Text className="font-medium text-foreground">Event Creation</Text>
@@ -84,24 +80,25 @@ export const AboutScreen = () => {
 
               <Separator />
 
-              <View className="flex-row items-start space-x-3">
+              <View className="flex-row items-start gap-x-3">
                 <Ionicons name="images-outline" size={24} color="#6b7280" />
                 <View className="flex-1">
                   <Text className="font-medium text-foreground">Shared Gallery</Text>
                   <Text className="text-muted-foreground">
-                    View all photos from an event in a shared gallery accessible to all participants.
+                    View all photos from an event in a shared gallery accessible to all
+                    participants.
                   </Text>
                 </View>
               </View>
 
               <Separator />
 
-              <View className="flex-row items-start space-x-3">
+              <View className="flex-row items-start gap-x-3">
                 <Ionicons name="download-outline" size={24} color="#6b7280" />
                 <View className="flex-1">
                   <Text className="font-medium text-foreground">Save Photos</Text>
                   <Text className="text-muted-foreground">
-                    Download photos from events to your device's gallery.
+                    Download photos from events to your device&apos;s gallery.
                   </Text>
                 </View>
               </View>
@@ -120,27 +117,31 @@ export const AboutScreen = () => {
               for more information.
             </Text>
           </CardContent>
-          <CardFooter className="flex-row space-x-4">
+          <CardFooter className="flex-row gap-x-4">
             <Button
               variant="outline"
-              className="flex-1 flex-row items-center justify-center space-x-2"
+              className="flex-1 flex-row items-center justify-center gap-x-2"
               onPress={handleContactSupport}>
               <Ionicons name="mail-outline" size={20} color="#6b7280" />
               <Text>Contact Support</Text>
             </Button>
-            <Button
-              variant="outline"
-              className="flex-1 flex-row items-center justify-center space-x-2"
-              onPress={handleVisitWebsite}>
-              <Ionicons name="globe-outline" size={20} color="#6b7280" />
-              <Text>Visit Website</Text>
-            </Button>
           </CardFooter>
         </Card>
 
-        {/* Copyright */}
+        {/* Built by Pixelthread */}
         <View className="mt-8 items-center">
-          <Text className="text-sm text-muted-foreground">© 2024 Lilkingman. All rights reserved.</Text>
+          <Text className="text-sm font-medium text-foreground">Built by</Text>
+          <View className="my-2">
+            <Text className="text-base font-bold text-foreground">Pixelthread</Text>
+          </View>
+          <Text className="text-xs text-muted-foreground">Quality Mobile & Web Applications</Text>
+        </View>
+
+        {/* Copyright */}
+        <View className="mt-4 items-center">
+          <Text className="text-sm text-muted-foreground">
+            © 2024 Lilkingman. All rights reserved.
+          </Text>
         </View>
       </View>
     </ScrollView>
