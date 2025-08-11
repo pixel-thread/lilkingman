@@ -9,6 +9,7 @@ import http from '~/src/utils/http';
 import { removeUser } from '~/src/utils/storage/user';
 import { CustomAvatar } from './CustomAvatar';
 import { AUTH_ENDPOINT } from '~/src/lib/constants/endpoints/auth';
+import { Platform } from 'react-native';
 
 export type MenuItemsT = {
   id: number;
@@ -21,6 +22,11 @@ const menuItems: MenuItemsT[] = [
     id: 1,
     title: 'Featured Images',
     herf: 'gallery',
+  },
+  {
+    id: 2,
+    title: 'About us',
+    herf: 'about',
   },
 ];
 export function CustomDrawerContent(props: DrawerContentComponentProps) {
@@ -37,7 +43,9 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
   });
 
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 0, flex: 1 }}>
+    <DrawerContentScrollView
+      {...props}
+      contentContainerStyle={{ paddingTop: Platform.OS === 'ios' ? 50 : 0, flex: 1 }}>
       <CustomAvatar />
       {menuItems.map((item) => (
         <DrawerItem
