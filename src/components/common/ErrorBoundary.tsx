@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
+import { logger } from '~/src/utils/logger';
 
 export type ErrorBoundaryFallbackProps = {
   error: Error | null;
@@ -53,11 +54,11 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, State> {
     // Make best-effort: call logger if provided; otherwise console.error
     try {
       if (onError) onError(error, { componentStack });
-      else console.error('ErrorBoundary caught an error:', error, componentStack);
+      else logger.error({ message: 'ErrorBoundary caught an error:', error, componentStack });
     } catch (e) {
       // Swallow logging errors to avoid infinite loops
 
-      console.error('Error in ErrorBoundary.onError handler', e);
+      logger.error({ message: 'Error in ErrorBoundary.onError handler', e });
     }
   }
 

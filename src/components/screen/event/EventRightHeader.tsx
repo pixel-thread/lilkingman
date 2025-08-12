@@ -19,8 +19,8 @@ export const EventRightHeader = () => {
     onSuccess: (data) => {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ['latest-event', user] });
+        ToastAndroid.show(data.message, ToastAndroid.SHORT);
       }
-      ToastAndroid.show(data.message, ToastAndroid.SHORT);
     },
   });
 
