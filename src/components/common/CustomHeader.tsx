@@ -62,7 +62,10 @@ export const CustomHeader = ({
           {/* Middle - Title */}
           <View style={styles.titleContainer}>
             {children || (
-              <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
+              <Text
+                className="capitalize"
+                style={[styles.title, { color: textColor }]}
+                numberOfLines={2}>
                 {title}
               </Text>
             )}

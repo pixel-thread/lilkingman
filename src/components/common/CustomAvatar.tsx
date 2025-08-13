@@ -1,10 +1,8 @@
 import { Image, View, TouchableOpacity } from 'react-native';
 import { Text } from '../ui/Text';
-import Constants from 'expo-constants';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 
 export const CustomAvatar = () => {
-  const appName = Constants.expoConfig?.name || '';
   const { user } = useAuthContext();
 
   return (
@@ -23,7 +21,7 @@ export const CustomAvatar = () => {
       </TouchableOpacity>
 
       {/* App Name */}
-      <Text className="mb-1 text-lg font-semibold capitalize text-gray-800">{appName}</Text>
+      <Text className="mb-1 text-lg font-semibold capitalize text-gray-800">{user?.name}</Text>
 
       {/* User Email */}
       <Text className="text-center text-xs text-gray-500" numberOfLines={1} ellipsizeMode="middle">
