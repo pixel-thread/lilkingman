@@ -1,4 +1,4 @@
-import { View, Image, ScrollView, RefreshControl, Dimensions } from 'react-native';
+import { View, Image, ScrollView, RefreshControl, Dimensions, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { H1, H2, P } from '~/src/components/ui/Typography';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
@@ -10,7 +10,7 @@ import { Loading } from '../../common/Loading';
 const { height } = Dimensions.get('window');
 
 export const AuthScreen = () => {
-  const { refresh, isAuthLoading, user } = useAuthContext();
+  const { user } = useAuthContext();
 
   useEffect(() => {
     if (user) {
@@ -21,16 +21,15 @@ export const AuthScreen = () => {
   return (
     <Loading>
       <View className="flex-1">
-        {/* Gradient Background */}
         <LinearGradient
           colors={['#667eea', '#764ba2', '#f093fb']}
-          start={{ x: 0, y: 0 }}
+          start={{ x: 1, y: 0 }}
           end={{ x: 1, y: 1 }}
-          className="absolute inset-0"
+          style={styles.linearGradient}
         />
 
         <ScrollView
-          refreshControl={<RefreshControl refreshing={isAuthLoading} onRefresh={refresh} />}
+          // refreshControl={<RefreshControl refreshing={isAuthLoading} onRefresh={refresh} />}
           className="flex-1"
           contentContainerStyle={{ minHeight: height }}
           showsVerticalScrollIndicator={false}>
@@ -110,3 +109,13 @@ export const AuthScreen = () => {
     </Loading>
   );
 };
+const styles = StyleSheet.create({
+  linearGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: '100%',
+    zIndex: -1,
+  },
+});
