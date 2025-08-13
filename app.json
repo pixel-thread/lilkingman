@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "lilkingman",
+    "name": "Lilkingman",
     "slug": "lilkingsman",
     "version": "1.0.0",
+    "newArchEnabled": true,
     "scheme": "lilkingman",
     "web": {
       "bundler": "metro",
@@ -34,9 +35,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jyrwaboys.lilkingman"

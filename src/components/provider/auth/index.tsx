@@ -9,7 +9,6 @@ import { UserI } from '~/src/types/user';
 import http from '~/src/utils/http';
 import {
   getToken as getTokenFromStorage,
-  removeToken,
   setToken as saveTokenToStorage,
 } from '~/src/utils/storage/token';
 import {
@@ -20,6 +19,7 @@ import {
 import { logger } from '~/src/utils/logger';
 import { router } from 'expo-router';
 import * as Linking from 'expo-linking';
+import Constants from 'expo-constants';
 
 type Props = { children: React.ReactNode };
 
@@ -32,7 +32,7 @@ export const AuthContextProvider = ({ children }: Props) => {
 
   const { startOAuthFlow } = useOAuth({
     strategy: 'oauth_google',
-    redirectUrl: Linking.createURL('/', { scheme: 'lilkingman' }),
+    redirectUrl: Linking.createURL('/', { scheme: Constants.manifest2.scheme }),
   });
 
   const { getToken: getClerkToken, signOut: clerkSignOut } = useAuth();
