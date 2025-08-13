@@ -4,12 +4,9 @@ import {
   DrawerItem,
 } from '@react-navigation/drawer';
 import { usePathname, useRouter } from 'expo-router';
-import { useMutation } from '@tanstack/react-query';
-import http from '~/src/utils/http';
-import { removeUser } from '~/src/utils/storage/user';
 import { CustomAvatar } from './CustomAvatar';
-import { AUTH_ENDPOINT } from '~/src/lib/constants/endpoints/auth';
-import { Platform } from 'react-native';
+import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type MenuItemsT = {
   id: number;
@@ -32,20 +29,10 @@ const menuItems: MenuItemsT[] = [
 export function CustomDrawerContent(props: DrawerContentComponentProps) {
   const router = useRouter();
   const pathname = usePathname();
-
-  const { mutate } = useMutation({
-    mutationFn: () => http.post(AUTH_ENDPOINT.POST_LOGOUT),
-    onSuccess: async () => {
-      router.replace('/auth');
-      removeUser();
-      return;
-    },
-  });
-
+  const { logout } = useAuthContext();
+  const insets = useSafeAreaInsets();
   return (
-    <DrawerContentScrollView
-      {...props}
-      contentContainerStyle={{ paddingTop: Platform.OS === 'ios' ? 50 : 0, flex: 1 }}>
+    <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: insets.top, flex: 1 }}>
       <CustomAvatar />
       {menuItems.map((item) => (
         <DrawerItem
@@ -64,7 +51,7 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
 
       <DrawerItem
         label="Logout"
-        onPress={mutate}
+        onPress={logout}
         labelStyle={{ color: '#ef4444', fontWeight: '500' }} // Tailwind's red-500
         style={{
           backgroundColor: '#fef2f2', // Tailwind's red-50

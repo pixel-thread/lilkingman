@@ -1,99 +1,145 @@
-import { useMutation } from '@tanstack/react-query';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useOAuth, useAuth } from '@clerk/clerk-expo';
+
 import { AUTH_ENDPOINT } from '~/src/lib/constants/endpoints/auth';
 import { AuthContext } from '~/src/lib/context/auth';
 import { AuthContextI } from '~/src/types/context';
 import { UserI } from '~/src/types/user';
 import http from '~/src/utils/http';
-import { getToken, removeToken, setToken as saveToken } from '~/src/utils/storage/token';
-import { getUser, removeUser, setUser as saveUser } from '~/src/utils/storage/user';
+import {
+  getToken as getTokenFromStorage,
+  removeToken,
+  setToken as saveTokenToStorage,
+} from '~/src/utils/storage/token';
+import {
+  getUser as getUserFromStorage,
+  removeUser,
+  setUser as saveUserToStorage,
+} from '~/src/utils/storage/user';
+import { logger } from '~/src/utils/logger';
+import { router } from 'expo-router';
+import * as Linking from 'expo-linking';
 
 type Props = { children: React.ReactNode };
 
 export const AuthContextProvider = ({ children }: Props) => {
-  const [user, setUser] = React.useState<UserI | null>(null);
-  const [token, setToken] = React.useState<string | null>(null);
-  const [isInitializing, setIsInitializing] = React.useState(true);
-  const [hasLocalUser, setHasLocalUser] = React.useState(false); // Track if we have local user
+  const [user, setUser] = useState<UserI | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [hasLocalUser, setHasLocalUser] = useState(false);
+  const queryClient = useQueryClient();
 
-  const { mutate: fetchUser, isPending } = useMutation({
+  const { startOAuthFlow } = useOAuth({
+    strategy: 'oauth_google',
+    redirectUrl: Linking.createURL('/', { scheme: 'lilkingman' }),
+  });
+
+  const { getToken: getClerkToken, signOut: clerkSignOut } = useAuth();
+
+  const {
+    mutate: refetchUser, // fire-and-forget
+    mutateAsync: refetchUserAsync, // promise version
+    isPending: isUserPending,
+  } = useMutation({
     mutationKey: ['user'],
-    mutationFn: () => http.get<UserI>(AUTH_ENDPOINT.GET_ME),
-    onSuccess: (data) => {
-      if (data.success) {
-        // Update user with fresh data from backend
+    mutationFn: () =>
+      http.get<UserI>(AUTH_ENDPOINT.GET_ME, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    onSuccess: async (data) => {
+      if (data.success && data.data) {
         setUser(data.data);
-        // Update local storage with fresh user data
-        if (data.data) {
-          saveUser(data.data);
-        }
-        return data;
+        logger.log({ message: 'Saved user to storage' });
+        await saveUserToStorage(data.data);
+        return data.data;
       }
-      clearAuth();
-      return null;
+      await logout();
+      return;
     },
     onError: () => {
-      // Only clear auth if we don't have a local user
-      // This prevents logout when network is temporarily unavailable
-      if (!hasLocalUser) {
-        clearAuth();
-      }
+      if (!hasLocalUser) clearAuth();
     },
   });
 
-  const clearAuth = () => {
-    setUser(null);
-    setToken(null);
-    setHasLocalUser(false);
-    removeUser();
-    removeToken();
-  };
-
-  // Load token + local user instantly
-  const initAuthFromStorage = async () => {
+  const googleLogin = useCallback(async () => {
     try {
-      const storedToken = await getToken();
-      const storedUser = await getUser();
+      const { createdSessionId, setActive } = await startOAuthFlow();
 
-      if (storedToken) {
-        setToken(storedToken);
+      if (!createdSessionId || !setActive) {
+        return;
       }
 
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        setHasLocalUser(true); // Mark that we have a local user
-      }
-    } catch (error) {
-      console.log('Error loading auth from storage:', error);
+      await setActive({ session: createdSessionId });
+
+      const clerkJwt = await getClerkToken({ template: 'jwt' });
+
+      if (!clerkJwt) throw new Error('Failed to fetch Clerk JWT');
+
+      await saveTokenToStorage(clerkJwt);
+      setToken(clerkJwt);
+
+      await refetchUserAsync();
     } finally {
       setIsInitializing(false);
     }
+  }, [getClerkToken, refetchUserAsync, startOAuthFlow]);
+
+  const logout = useCallback(async () => {
+    try {
+      await clerkSignOut();
+      router.push('/auth');
+    } finally {
+      clearAuth();
+      queryClient.clear();
+    }
+  }, [clerkSignOut, token, queryClient]);
+
+  const clearAuth = async () => {
+    setUser(null);
+    setToken(null);
+    setHasLocalUser(false);
+    await removeUser();
   };
 
-  // On mount: load from storage immediately
   useEffect(() => {
-    initAuthFromStorage();
+    (async () => {
+      try {
+        logger.info({ message: 'Hydrating auth' });
+        const storedToken = await getTokenFromStorage();
+        const storedUser = await getUserFromStorage();
+
+        if (storedToken) setToken(storedToken);
+        if (storedUser) {
+          logger.info({ message: 'Hydrating user from storage' });
+          setUser(JSON.parse(storedUser));
+          setHasLocalUser(true);
+        }
+      } catch (e) {
+        console.log('[Auth] Failed to hydrate:', e);
+      } finally {
+        setIsInitializing(false);
+      }
+    })();
   }, []);
 
-  // After token is set and initialization is complete, validate with server
   useEffect(() => {
-    if (!isInitializing && token && hasLocalUser) {
-      // Only fetch from server if we have both token and local user
-      fetchUser();
-    } else if (!isInitializing && token && !hasLocalUser) {
-      // If we have token but no local user, still try to fetch
-      fetchUser();
+    if (!isInitializing && token) {
+      refetchUser();
     }
-  }, [token, isInitializing, hasLocalUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, isInitializing]);
 
-  const value: AuthContextI = {
-    user,
-    refresh: fetchUser,
-    // User is considered "loading" only if we're initializing OR
-    // (we don't have a local user AND we're fetching from server)
-    isAuthLoading: isInitializing || (!hasLocalUser && isPending),
+  /* ───────────────────────────────
+     Context value
+  ─────────────────────────────── */
+  const contextValue: AuthContextI = {
+    user: user,
+    refresh: refetchUser, // callers can pull fresh user manually
+    isAuthLoading: isInitializing || (!hasLocalUser && isUserPending),
+    googleLogin,
+    logout,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };

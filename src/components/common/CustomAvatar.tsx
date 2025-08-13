@@ -13,7 +13,9 @@ export const CustomAvatar = () => {
       <TouchableOpacity className="mb-4" activeOpacity={0.7}>
         <View className="h-24 w-24 items-center justify-center rounded-full border-2 border-indigo-200 bg-indigo-100">
           <Image
-            source={{ uri: 'https://avatar.iran.liara.run/public' }}
+            source={{
+              uri: user?.hasImage ? user.imageUrl : 'https://avatar.iran.liara.run/public',
+            }}
             className="h-20 w-20 rounded-full"
             resizeMode="cover"
           />
@@ -25,7 +27,7 @@ export const CustomAvatar = () => {
 
       {/* User Email */}
       <Text className="text-center text-xs text-gray-500" numberOfLines={1} ellipsizeMode="middle">
-        {user?.auth.email}
+        {user?.email}
       </Text>
     </View>
   );

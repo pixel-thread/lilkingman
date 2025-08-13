@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { getToken } from '../storage/token';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
+import { AUTH_TOKEN_KEY } from '~/src/lib/constants/token';
 
 const axiosInstance = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -23,7 +24,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      await AsyncStorage.clear(); // if you want to clear all storage
+      await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
       router.push('/auth');
     }
     return Promise.reject(error);

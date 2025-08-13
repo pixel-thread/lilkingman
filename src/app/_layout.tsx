@@ -1,7 +1,7 @@
 import '@styles/global.css';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Stack } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
 import { AuthContextProvider } from '@components/provider/auth';
 import { TQueryProvider } from '@components/provider/query';
 import { Redirect } from '@components/common/Redirect';
@@ -13,6 +13,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useScannerStore } from '../lib/store/useScannerStore';
 import { InviteScanner } from '../components/common/InviteScanner';
 import { ScreenCapturePrevent } from '../components/common/ScreenCapturePrevent';
+import { ClerkProvider } from '@clerk/clerk-expo';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
+import { useEffect } from 'react';
+import { logger } from '../utils/logger';
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -21,35 +25,42 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const { open, onValueChange: onClose } = useScannerStore();
-
+  const pathName = usePathname();
+  useEffect(() => {
+    logger.log({ message: 'PATH =>', pathName });
+  }, [pathName]);
   return (
     <SafeAreaProvider>
       <ScreenCapturePrevent>
-        <TQueryProvider>
-          <AuthContextProvider>
+        <ClerkProvider
+          publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
+          tokenCache={tokenCache}>
+          <TQueryProvider>
             <Loading>
-              <Redirect>
-                <EventContextProvider>
-                  <StatusBar translucent style="dark" />
-                  <GestureHandlerRootView style={{ flex: 1 }}>
-                    <KeyboardAvoidingView
-                      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                      className="flex-1">
-                      <Stack>
-                        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-                        <Stack.Screen
-                          name="modal"
-                          options={{ headerShown: false, presentation: 'modal' }}
-                        />
-                      </Stack>
-                      <InviteScanner open={open} onClose={() => onClose(false)} />
-                    </KeyboardAvoidingView>
-                  </GestureHandlerRootView>
-                </EventContextProvider>
-              </Redirect>
+              <AuthContextProvider>
+                <Redirect>
+                  <EventContextProvider>
+                    <StatusBar translucent style="dark" />
+                    <GestureHandlerRootView style={{ flex: 1 }}>
+                      <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                        className="flex-1">
+                        <Stack>
+                          <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+                          <Stack.Screen
+                            name="modal"
+                            options={{ headerShown: false, presentation: 'modal' }}
+                          />
+                        </Stack>
+                        <InviteScanner open={open} onClose={() => onClose(false)} />
+                      </KeyboardAvoidingView>
+                    </GestureHandlerRootView>
+                  </EventContextProvider>
+                </Redirect>
+              </AuthContextProvider>
             </Loading>
-          </AuthContextProvider>
-        </TQueryProvider>
+          </TQueryProvider>
+        </ClerkProvider>
       </ScreenCapturePrevent>
     </SafeAreaProvider>
   );
