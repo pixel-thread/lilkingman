@@ -15,8 +15,9 @@ import { InviteScanner } from '../components/common/InviteScanner';
 import { ScreenCapturePrevent } from '../components/common/ScreenCapturePrevent';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { logger } from '../utils/logger';
+import { Loader } from '../components/common/Loader';
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -25,10 +26,18 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const { open, onValueChange: onClose } = useScannerStore();
-  const pathName = usePathname();
+  const [isReady, setIsReady] = useState(false);
+
   useEffect(() => {
-    logger.log({ message: 'PATH =>', pathName });
-  }, [pathName]);
+    setTimeout(() => {
+      setIsReady(true);
+    }, 1000);
+  }, []);
+
+  if (!isReady) {
+    return <Loader />;
+  }
+
   return (
     <SafeAreaProvider>
       <ScreenCapturePrevent>
