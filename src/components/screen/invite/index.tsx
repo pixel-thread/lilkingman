@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,20 +21,20 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import http from '~/src/utils/http';
 import { useEventContext } from '~/src/hooks/event/useEventContext';
 import { EVENTS_ENDPOINT } from '~/src/lib/constants/endpoints/event';
-import { NoInviteScreen } from './NoInviteScreen';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import { Ternary } from '../../common/Ternary';
+import { NoPhoto } from '../../common/NoPhoto';
 
 // Email validation schema
 const emailSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.email('Please enter a valid email address'),
 });
 
 type FormValues = z.infer<typeof emailSchema>;
 
 export const InviteScreen = () => {
   const { user } = useAuthContext();
-  const { event } = useEventContext();
+  const { event, isEventLoading, refresh } = useEventContext();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const qrCodeValue = event?.id;
@@ -70,8 +71,16 @@ export const InviteScreen = () => {
 
   const onSubmit = (data: FormValues) => mutate(data);
 
-  if (!event) {
-    return <NoInviteScreen />;
+  if (!event || isEventLoading) {
+    return (
+      <NoPhoto
+        title="No Event"
+        description="There is no event currently."
+        icon="camera-outline"
+        refetch={refresh}
+        isLoading={isEventLoading}
+      />
+    );
   }
 
   return (
@@ -81,7 +90,6 @@ export const InviteScreen = () => {
         paddingBottom: insets.bottom + 20,
       }}>
       <View className="p-6">
-        {/* QR Code Section */}
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Scan QR Code</CardTitle>

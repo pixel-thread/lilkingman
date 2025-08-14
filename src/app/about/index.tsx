@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import { Container } from '~/src/components/common/Container';
 import { CustomHeader } from '~/src/components/common/CustomHeader';
 import AboutScreen from '~/src/components/screen/about';
 
@@ -12,7 +13,9 @@ export default function page() {
           header: () => <CustomHeader showBackButton title="About" showRightIcon={false} />,
         }}
       />
-      <AboutScreen />
+      <Container>
+        <AboutScreen />
+      </Container>
     </>
   );
 }

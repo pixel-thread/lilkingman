@@ -5,10 +5,6 @@
   },
   "build": {
     "local": {
-      "env": {
-        "EXPO_PUBLIC_IS_BETA": "true",
-        "EXPO_PUBLIC_API_URL": "https://lilkingman.vercel.app/api"
-      },
       "android": { "buildType": "apk" }
     },
     "development": {

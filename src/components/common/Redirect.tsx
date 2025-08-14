@@ -1,36 +1,44 @@
-import { router, usePathname } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useAuth } from '@clerk/clerk-expo';
+import { usePathname, useRouter } from 'expo-router';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import { logger } from '~/src/utils/logger';
 
 export const Redirect = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuthContext();
+  const { user, isAuthLoading } = useAuthContext();
+  const { isLoaded, isSignedIn } = useAuth();
   const pathName = usePathname();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+
+  // Determine if user is authenticated (either Clerk's or context user)
+  const isAuthenticated = !!user && isSignedIn;
 
   useEffect(() => {
-    if (user) {
-      logger.log({ message: 'Redirect useEffect 1', isAuthenticated, user: !!user });
-      setIsAuthenticated(true);
-    } else {
-      logger.log({ message: 'Redirect useEffect 1.1', isAuthenticated, user: !!user });
-      setIsAuthenticated(false);
-    }
-  }, [user]);
+    logger.log({
+      message: 'Redirect check',
+      isAuthenticated,
+      userExists: !!user,
+      isAuthLoading,
+      isLoaded,
+      isSignedIn,
+      currentPath: pathName,
+    });
 
-  useEffect(() => {
+    // Wait for both auth state to load and not be in loading phase
+    if (isAuthLoading) return;
+
+    // Redirect unauthenticated users away from protected routes
     if (!isAuthenticated && pathName !== '/auth') {
-      logger.log({ message: 'Redirect useEffect 2', isAuthenticated, user: !!user });
-      router.push('/auth');
+      router.replace('/auth');
+      return;
     }
-  }, [isAuthenticated]);
 
-  useEffect(() => {
+    // Redirect authenticated users away from the auth page
     if (isAuthenticated && pathName === '/auth') {
-      logger.log({ message: 'Redirect useEffect 3', isAuthenticated, user: !!user });
-      router.push('/');
+      router.replace('/');
+      return;
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isAuthLoading, pathName, router, user]);
 
   return <>{children}</>;
 };

@@ -21,8 +21,8 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401 && error.response?.status === 403) {
-      router.push('/auth');
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      router.replace('/auth');
     }
     return Promise.reject(error);
   }

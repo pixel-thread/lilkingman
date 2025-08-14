@@ -1,27 +1,29 @@
-// src/components/Loading.tsx
-import { useIsFetching } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { Loader } from './Loader';
+import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
+import { useAuth } from '@clerk/clerk-expo';
+import { usePathname } from 'expo-router';
 
-export const Loading = ({ children }: { children: React.ReactNode }) => {
-  const isFetching = useIsFetching({ queryKey: ['user'] });
+type Props = {
+  children: React.ReactNode;
+};
+export const Loading = ({ children }: Props) => {
+  const { isAuthLoading } = useAuthContext();
   const [isLoading, setIsLoading] = useState(true);
-
+  const pathName = usePathname();
+  const { isSignedIn } = useAuth();
   // Watch isFetching to trigger delay
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (isFetching === 0) {
-      timeout = setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
-    } else {
-      setIsLoading(true);
+    if (!isAuthLoading && isLoading) {
+      setIsLoading(false);
     }
-
-    return () => clearTimeout(timeout);
-  }, [isFetching]);
+  }, [isAuthLoading, isLoading]);
 
   if (isLoading) {
+    return <Loader />;
+  }
+
+  if (pathName === '/auth' && isSignedIn) {
     return <Loader />;
   }
 

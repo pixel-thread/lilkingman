@@ -18,7 +18,7 @@ export const AboutScreen = () => {
   const insets = useSafeAreaInsets();
 
   const handleContactSupport = () => {
-    Linking.openURL('mailto:support@lilkingman.com');
+    // TODO: Implement contact support functionality
   };
 
   return (

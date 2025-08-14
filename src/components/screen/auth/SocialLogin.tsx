@@ -4,11 +4,13 @@ import * as WebBrowser from 'expo-web-browser';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import { useState } from 'react';
 import { View } from 'react-native';
+import { useAuth } from '@clerk/clerk-expo';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export const SocialLogin = () => {
-  const { googleLogin } = useAuthContext();
+  const { googleLogin, isAuthLoading } = useAuthContext();
+  const { isSignedIn } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
@@ -27,14 +29,18 @@ export const SocialLogin = () => {
       variant="outline"
       className="h-14 w-full flex-row items-center justify-center gap-x-3 rounded-2xl border-2 border-white/30 bg-white/20 backdrop-blur-md"
       onPress={handleGoogleLogin}
-      disabled={loading}>
+      disabled={loading || isSignedIn || isAuthLoading}>
       {/* Google Icon */}
       <View className="h-6 w-6 items-center justify-center rounded-full bg-white">
         <Text className="text-sm">G</Text>
       </View>
 
       <Text className="text-lg font-semibold text-white">
-        {loading ? 'Signing you in...' : 'Continue with Google'}
+        {loading || isAuthLoading
+          ? 'Signing  in...'
+          : isSignedIn
+            ? 'Signing In...'
+            : 'Continue with Google'}
       </Text>
     </Button>
   );

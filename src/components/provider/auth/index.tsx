@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth, useSSO } from '@clerk/clerk-expo';
 import * as Linking from 'expo-linking';
-import { router } from 'expo-router';
 import { AppState } from 'react-native';
 
 import { AUTH_ENDPOINT } from '~/src/lib/constants/endpoints/auth';
@@ -16,6 +15,7 @@ import {
   removeToken,
 } from '~/src/utils/storage/token';
 import { logger } from '~/src/utils/logger';
+import { Platform } from 'react-native';
 
 type Props = { children: React.ReactNode };
 
@@ -29,15 +29,15 @@ export const AuthContextProvider = ({ children }: Props) => {
 
   // Clerk hooks
   const { startSSOFlow } = useSSO();
-  const { getToken: getClerkToken, signOut: clerkSignOut, isSignedIn } = useAuth();
+  const { getToken: getClerkToken, signOut: clerkSignOut, isSignedIn, isLoaded } = useAuth();
 
-  // Staleness check so we don't spam backend
+  // Prevent spamming backend — 15 min cache
   const isUserDataStale = useCallback(() => {
     if (!lastUserFetch) return true;
-    return Date.now() - lastUserFetch > 15 * 60 * 1000; // 15 minutes
+    return Date.now() - lastUserFetch > 15 * 60 * 1000; // 15 min
   }, [lastUserFetch]);
 
-  // Fetch user from backend
+  /** Fetch current user from backend */
   const {
     mutate: fetchUser,
     mutateAsync: fetchUserAsync,
@@ -46,20 +46,21 @@ export const AuthContextProvider = ({ children }: Props) => {
     mutationKey: ['user'],
     mutationFn: async () => {
       const freshToken = await getClerkToken({ template: 'jwt' });
-      if (freshToken && freshToken !== token) {
+      if (freshToken) {
         setToken(freshToken);
         await saveTokenToStorage(freshToken);
       }
-      return http.get<UserI>(AUTH_ENDPOINT.GET_ME, {
-        headers: { Authorization: `Bearer ${freshToken || token}` },
-      });
+      logger.info({ message: 'Fetching user' });
+      return http.get<UserI>(AUTH_ENDPOINT.GET_ME);
     },
+
     onSuccess: (data) => {
       if (data.success && data.data) {
+        logger.info({ message: 'User fetch success' });
         setUser(data.data);
         setLastUserFetch(Date.now());
       } else {
-        logger.warn({ message: 'User fetch failed - logging out' });
+        logger.warn({ message: 'User fetch failed — logging out' });
         secureLogout();
       }
     },
@@ -69,7 +70,7 @@ export const AuthContextProvider = ({ children }: Props) => {
     },
   });
 
-  // Google login
+  /** Google OAuth login */
   const googleLogin = useCallback(async () => {
     try {
       if (isSignedIn && user) {
@@ -94,13 +95,19 @@ export const AuthContextProvider = ({ children }: Props) => {
       setToken(clerkJwt);
 
       await fetchUserAsync();
-    } catch (err) {
-      logger.error({ message: 'Google login failed', error: err });
-      secureLogout();
+    } catch (err: any) {
+      if (err.clerkError && err.errors?.[0].code === 'session_exists') {
+        logger.info({ message: 'User already signed in; bypassing login flow' });
+        // Optionally, you can fetch user info here or just ignore
+        await fetchUserAsync();
+      } else {
+        logger.error({ message: 'Google login failed', error: err });
+        secureLogout();
+      }
     }
   }, [isSignedIn, user, startSSOFlow, getClerkToken, fetchUserAsync]);
 
-  // Logout
+  /** Logout & cleanup */
   const secureLogout = useCallback(async () => {
     try {
       await clerkSignOut();
@@ -112,28 +119,39 @@ export const AuthContextProvider = ({ children }: Props) => {
       setLastUserFetch(null);
       await removeToken();
       queryClient.clear();
-      router.replace('/auth');
     }
   }, [clerkSignOut, queryClient]);
 
-  // Hydrate token on app start
+  /** Hydrate on app start */
   useEffect(() => {
     (async () => {
       try {
         logger.info({ message: 'Hydrating auth...' });
+
         const storedToken = await getTokenFromStorage();
-        if (storedToken && isSignedIn) {
+
+        // Case 1: Signed in
+        if (isSignedIn) {
           const freshToken = await getClerkToken({ template: 'jwt' });
+
           if (freshToken) {
-            setToken(freshToken);
             if (freshToken !== storedToken) {
               await saveTokenToStorage(freshToken);
             }
-            await fetchUserAsync();
+            setToken(freshToken);
+
+            // Fetch user if not already loaded
+            if (!user) {
+              await fetchUserAsync();
+            }
           } else {
+            logger.warn({ message: 'No fresh token — clearing auth' });
             await removeToken();
           }
-        } else {
+        }
+        // Case 2: Not signed in — clear state
+        else {
+          logger.info({ message: 'Not signed in — clearing stored token' });
           await removeToken();
         }
       } catch (err) {
@@ -143,9 +161,8 @@ export const AuthContextProvider = ({ children }: Props) => {
         setIsInitializing(false);
       }
     })();
-  }, [isSignedIn]);
-
-  // Refresh user when app comes to foreground
+  }, [isLoaded, isSignedIn]); // Wait for Clerk to finish before running
+  /** Foreground refresh */
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active' && token && isUserDataStale()) {
@@ -153,7 +170,7 @@ export const AuthContextProvider = ({ children }: Props) => {
       }
     });
     return () => sub.remove();
-  }, [token, fetchUser, isUserDataStale]);
+  }, [token, fetchUser, isUserDataStale, user]);
 
   const contextValue: AuthContextI = {
     user,

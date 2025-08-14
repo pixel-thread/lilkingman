@@ -4,16 +4,8 @@ module.exports = {
   theme: {
     useExisting: false,
     existingThemePath: null,
-    defaultTheme: 'system',
+    defaultTheme: 'light',
     useSystemTheme: true,
   },
-  components: {
-    outDir: './src/components/ui',
-    defaultProps: {
-      Button: {
-        variant: 'default',
-        size: 'default',
-      },
-    },
-  },
+  components: { outDir: './src/components/ui' },
 };

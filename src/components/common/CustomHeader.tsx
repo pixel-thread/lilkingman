@@ -41,7 +41,6 @@ export const CustomHeader = ({
 
   return (
     <>
-      <StatusBar barStyle="dark-content" />
       <View style={[styles.container, { backgroundColor, paddingTop: insets.top }]}>
         <View style={styles.headerContent}>
           {/* Left side - Back or Drawer button */}
@@ -89,6 +88,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
     zIndex: 1000,
+    backgroundColor: '#000',
   },
   headerContent: {
     height: 56,

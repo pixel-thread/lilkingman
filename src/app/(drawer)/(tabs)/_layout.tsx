@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { CustomHeader } from '~/src/components/common/CustomHeader';
 import { CustomTabBar } from '~/src/components/common/CustomTabBar';
+import { ImageViewerModal } from '~/src/components/common/ImageViewerModal';
 import { TabBarIcon } from '~/src/components/common/TabBarIcon';
 
 export default function TabLayout() {
@@ -10,9 +11,7 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: true,
         tabBarShowLabel: true,
-        header: ({ options }: { options: { title: string } }) => (
-          <CustomHeader title={options.title} showRightIcon={true} />
-        ),
+        header: ({ options }) => <CustomHeader title={options.title} showRightIcon={true} />,
       }}>
       <Tabs.Screen
         name="index"

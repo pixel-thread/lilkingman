@@ -1,7 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Platform } from 'react-native';
+import { Alert, Platform, ToastAndroid } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ImageI } from '~/src/types/Image';
+import { useImageViewModalStore } from '~/src/lib/store/useImageViewerModal';
+import { logger } from '~/src/utils/logger';
 
 const STORAGE_KEY = 'downloadDirectoryUri';
 
@@ -10,6 +13,7 @@ interface UseFileDownloadReturn {
   isDownloading: boolean;
   error: Error | null;
   fileUri: string | null;
+  downloadImage: () => Promise<void>;
 }
 
 const mimeMap: Record<string, string> = {
@@ -31,7 +35,7 @@ export const useFileDownload = (): UseFileDownloadReturn => {
   const [error, setError] = useState<Error | null>(null);
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [directoryUri, setDirectoryUri] = useState<string | null>(null);
-
+  const { image } = useImageViewModalStore();
   // Load saved directory on mount
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((uri) => {
@@ -99,6 +103,23 @@ export const useFileDownload = (): UseFileDownloadReturn => {
     },
     [directoryUri, requestFolderOnce]
   );
-
-  return { downloadFile, isDownloading, error, fileUri };
+  const downloadImage = async () => {
+    logger.log({ message: 'Downloading image' });
+    if (!image) return;
+    try {
+      await downloadFile({
+        fileUrl: image.path,
+        type: image.mimeType.split('/')[1],
+      });
+      if (Platform.OS === 'ios') {
+        Alert.alert('Success', 'Image saved to Photos', [{ text: 'OK' }]);
+      } else {
+        ToastAndroid.show('Image saved to Gallery', ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save image');
+      console.error('Error saving image:', error);
+    }
+  };
+  return { downloadFile, isDownloading, error, fileUri, downloadImage };
 };

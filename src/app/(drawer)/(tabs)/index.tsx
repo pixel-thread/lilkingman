@@ -3,9 +3,9 @@ import { EventScreen } from '~/src/components/screen/event';
 import { CustomHeader } from '~/src/components/common/CustomHeader';
 import { CustomLoadingHeader } from '~/src/components/common/CustomLoadingHeader';
 import { useEventContext } from '~/src/hooks/event/useEventContext';
-import { Container } from '~/src/components/common/Container';
 import { EventRightHeader } from '~/src/components/screen/event/EventRightHeader';
 import Constants from 'expo-constants';
+import { Container } from '~/src/components/common/Container';
 
 export default function Home() {
   const { event, isEventLoading } = useEventContext();
