@@ -6,17 +6,22 @@ import { SocialLogin } from './SocialLogin';
 import { useEffect } from 'react';
 import { router } from 'expo-router';
 import { Loading } from '../../common/Loading';
+import { Loader } from '../../common/Loader';
 
 const { height } = Dimensions.get('window');
 
 export const AuthScreen = () => {
-  const { user } = useAuthContext();
+  const { user, isAuthLoading } = useAuthContext();
 
   useEffect(() => {
     if (user) {
       router.replace('/');
     }
   }, [user]);
+
+  if (isAuthLoading || user) {
+    return <Loader />;
+  }
 
   return (
     <Loading>

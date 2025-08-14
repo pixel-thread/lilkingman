@@ -3,14 +3,12 @@ import { Text } from '../../ui/Text';
 import * as WebBrowser from 'expo-web-browser';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import { useState } from 'react';
-import { Platform, View } from 'react-native';
-import { setToken } from '~/src/utils/storage/token';
-import { logger } from '~/src/utils/logger';
+import { View } from 'react-native';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export const SocialLogin = () => {
-  const { googleLogin, refresh } = useAuthContext();
+  const { googleLogin } = useAuthContext();
   const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = async () => {

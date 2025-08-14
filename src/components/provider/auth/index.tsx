@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useOAuth, useAuth } from '@clerk/clerk-expo';
+import { useAuth, useSSO } from '@clerk/clerk-expo';
+import * as Linking from 'expo-linking';
+import { router } from 'expo-router';
+import { AppState } from 'react-native';
 
 import { AUTH_ENDPOINT } from '~/src/lib/constants/endpoints/auth';
 import { AuthContext } from '~/src/lib/context/auth';
@@ -10,16 +13,9 @@ import http from '~/src/utils/http';
 import {
   getToken as getTokenFromStorage,
   setToken as saveTokenToStorage,
+  removeToken,
 } from '~/src/utils/storage/token';
-import {
-  getUser as getUserFromStorage,
-  removeUser,
-  setUser as saveUserToStorage,
-} from '~/src/utils/storage/user';
 import { logger } from '~/src/utils/logger';
-import { router } from 'expo-router';
-import * as Linking from 'expo-linking';
-import Constants from 'expo-constants';
 
 type Props = { children: React.ReactNode };
 
@@ -27,118 +23,144 @@ export const AuthContextProvider = ({ children }: Props) => {
   const [user, setUser] = useState<UserI | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
-  const [hasLocalUser, setHasLocalUser] = useState(false);
+  const [lastUserFetch, setLastUserFetch] = useState<number | null>(null);
+
   const queryClient = useQueryClient();
 
-  const { startOAuthFlow } = useOAuth({
-    strategy: 'oauth_google',
-    redirectUrl: Linking.createURL('/', { scheme: Constants.manifest2.scheme }),
-  });
+  // Clerk hooks
+  const { startSSOFlow } = useSSO();
+  const { getToken: getClerkToken, signOut: clerkSignOut, isSignedIn } = useAuth();
 
-  const { getToken: getClerkToken, signOut: clerkSignOut } = useAuth();
+  // Staleness check so we don't spam backend
+  const isUserDataStale = useCallback(() => {
+    if (!lastUserFetch) return true;
+    return Date.now() - lastUserFetch > 15 * 60 * 1000; // 15 minutes
+  }, [lastUserFetch]);
 
+  // Fetch user from backend
   const {
-    mutate: refetchUser, // fire-and-forget
-    mutateAsync: refetchUserAsync, // promise version
-    isPending: isUserPending,
+    mutate: fetchUser,
+    mutateAsync: fetchUserAsync,
+    isPending: isUserLoading,
   } = useMutation({
     mutationKey: ['user'],
-    mutationFn: () =>
-      http.get<UserI>(AUTH_ENDPOINT.GET_ME, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
-    onSuccess: async (data) => {
+    mutationFn: async () => {
+      const freshToken = await getClerkToken({ template: 'jwt' });
+      if (freshToken && freshToken !== token) {
+        setToken(freshToken);
+        await saveTokenToStorage(freshToken);
+      }
+      return http.get<UserI>(AUTH_ENDPOINT.GET_ME, {
+        headers: { Authorization: `Bearer ${freshToken || token}` },
+      });
+    },
+    onSuccess: (data) => {
       if (data.success && data.data) {
         setUser(data.data);
-        logger.log({ message: 'Saved user to storage' });
-        await saveUserToStorage(data.data);
-        return data.data;
+        setLastUserFetch(Date.now());
+      } else {
+        logger.warn({ message: 'User fetch failed - logging out' });
+        secureLogout();
       }
-      await logout();
-      return;
     },
-    onError: () => {
-      if (!hasLocalUser) clearAuth();
+    onError: (error) => {
+      logger.error({ message: 'User fetch error', error });
+      secureLogout();
     },
   });
 
+  // Google login
   const googleLogin = useCallback(async () => {
     try {
-      const { createdSessionId, setActive } = await startOAuthFlow();
-
-      if (!createdSessionId || !setActive) {
+      if (isSignedIn && user) {
+        logger.info({ message: 'Already signed in — skipping login' });
         return;
       }
+
+      logger.info({ message: 'Starting Google OAuth login' });
+      const { createdSessionId, setActive } = await startSSOFlow({
+        strategy: 'oauth_google',
+        redirectUrl: Linking.createURL('/', { scheme: 'lilkingman' }),
+      });
+
+      if (!createdSessionId || !setActive) return;
 
       await setActive({ session: createdSessionId });
 
       const clerkJwt = await getClerkToken({ template: 'jwt' });
-
-      if (!clerkJwt) throw new Error('Failed to fetch Clerk JWT');
+      if (!clerkJwt) throw new Error('No JWT from Clerk after login');
 
       await saveTokenToStorage(clerkJwt);
       setToken(clerkJwt);
 
-      await refetchUserAsync();
-    } finally {
-      setIsInitializing(false);
+      await fetchUserAsync();
+    } catch (err) {
+      logger.error({ message: 'Google login failed', error: err });
+      secureLogout();
     }
-  }, [getClerkToken, refetchUserAsync, startOAuthFlow]);
+  }, [isSignedIn, user, startSSOFlow, getClerkToken, fetchUserAsync]);
 
-  const logout = useCallback(async () => {
+  // Logout
+  const secureLogout = useCallback(async () => {
     try {
       await clerkSignOut();
-      router.push('/auth');
+    } catch (err) {
+      logger.error({ message: 'Clerk signOut error', error: err });
     } finally {
-      clearAuth();
+      setUser(null);
+      setToken(null);
+      setLastUserFetch(null);
+      await removeToken();
       queryClient.clear();
+      router.replace('/auth');
     }
-  }, [clerkSignOut, token, queryClient]);
+  }, [clerkSignOut, queryClient]);
 
-  const clearAuth = async () => {
-    setUser(null);
-    setToken(null);
-    setHasLocalUser(false);
-    await removeUser();
-  };
-
+  // Hydrate token on app start
   useEffect(() => {
     (async () => {
       try {
-        logger.info({ message: 'Hydrating auth' });
+        logger.info({ message: 'Hydrating auth...' });
         const storedToken = await getTokenFromStorage();
-        const storedUser = await getUserFromStorage();
-
-        if (storedToken) setToken(storedToken);
-        if (storedUser) {
-          logger.info({ message: 'Hydrating user from storage' });
-          setUser(JSON.parse(storedUser));
-          setHasLocalUser(true);
+        if (storedToken && isSignedIn) {
+          const freshToken = await getClerkToken({ template: 'jwt' });
+          if (freshToken) {
+            setToken(freshToken);
+            if (freshToken !== storedToken) {
+              await saveTokenToStorage(freshToken);
+            }
+            await fetchUserAsync();
+          } else {
+            await removeToken();
+          }
+        } else {
+          await removeToken();
         }
-      } catch (e) {
-        console.log('[Auth] Failed to hydrate:', e);
+      } catch (err) {
+        logger.error({ message: 'Auth hydration error', error: err });
+        await removeToken();
       } finally {
         setIsInitializing(false);
       }
     })();
-  }, []);
+  }, [isSignedIn]);
 
+  // Refresh user when app comes to foreground
   useEffect(() => {
-    if (!isInitializing && token) {
-      refetchUser();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, isInitializing]);
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active' && token && isUserDataStale()) {
+        fetchUser();
+      }
+    });
+    return () => sub.remove();
+  }, [token, fetchUser, isUserDataStale]);
 
-  /* ───────────────────────────────
-     Context value
-  ─────────────────────────────── */
   const contextValue: AuthContextI = {
-    user: user,
-    refresh: refetchUser, // callers can pull fresh user manually
-    isAuthLoading: isInitializing || (!hasLocalUser && isUserPending),
+    user,
+    refresh: fetchUser,
+    isAuthLoading: isInitializing || isUserLoading,
     googleLogin,
-    logout,
+    logout: secureLogout,
   };
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

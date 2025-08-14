@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { getToken } from '../storage/token';
-import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
-import { AUTH_TOKEN_KEY } from '~/src/lib/constants/token';
 
 const axiosInstance = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -23,8 +21,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+    if (error.response?.status === 401 && error.response?.status === 403) {
       router.push('/auth');
     }
     return Promise.reject(error);
