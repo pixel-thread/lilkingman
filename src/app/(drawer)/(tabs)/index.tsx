@@ -6,6 +6,7 @@ import { useEventContext } from '~/src/hooks/event/useEventContext';
 import { EventRightHeader } from '~/src/components/screen/event/EventRightHeader';
 import Constants from 'expo-constants';
 import { Container } from '~/src/components/common/Container';
+import { InviteScanner } from '~/src/components/common/InviteScanner';
 
 export default function Home() {
   const { event, isEventLoading } = useEventContext();
@@ -29,6 +30,7 @@ export default function Home() {
       <Container>
         <EventScreen />
       </Container>
+      <InviteScanner />
     </>
   );
 }
