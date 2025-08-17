@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth, useSSO } from '@clerk/clerk-expo';
 import * as Linking from 'expo-linking';
-import { AppState } from 'react-native';
+import { AppState, Platform, ToastAndroid } from 'react-native';
 
 import { AUTH_ENDPOINT } from '~/src/lib/constants/endpoints/auth';
 import { AuthContext } from '~/src/lib/context/auth';
@@ -15,7 +15,6 @@ import {
   removeToken,
 } from '~/src/utils/storage/token';
 import { logger } from '~/src/utils/logger';
-import { Platform } from 'react-native';
 
 type Props = { children: React.ReactNode };
 
@@ -61,10 +60,15 @@ export const AuthContextProvider = ({ children }: Props) => {
         setLastUserFetch(Date.now());
       } else {
         logger.warn({ message: 'User fetch failed — logging out' });
-        secureLogout();
+        if (Platform.OS === 'ios') {
+          ToastAndroid.show('Please Check your internet connection', ToastAndroid.SHORT);
+        }
       }
     },
     onError: (error) => {
+      if (Platform.OS === 'ios') {
+        ToastAndroid.show('There was an error while fetching your details', ToastAndroid.SHORT);
+      }
       logger.error({ message: 'User fetch error', error });
       secureLogout();
     },
@@ -170,7 +174,7 @@ export const AuthContextProvider = ({ children }: Props) => {
       }
     });
     return () => sub.remove();
-  }, [token, fetchUser, isUserDataStale, user]);
+  }, [token, fetchUser, isUserDataStale, user, isSignedIn]);
 
   const contextValue: AuthContextI = {
     user,
