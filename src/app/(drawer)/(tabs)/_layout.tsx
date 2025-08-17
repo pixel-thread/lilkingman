@@ -1,7 +1,6 @@
 import { Tabs } from 'expo-router';
 import { CustomHeader } from '~/src/components/common/CustomHeader';
 import { CustomTabBar } from '~/src/components/common/CustomTabBar';
-import { ImageViewerModal } from '~/src/components/common/ImageViewerModal';
 import { TabBarIcon } from '~/src/components/common/TabBarIcon';
 
 export default function TabLayout() {
