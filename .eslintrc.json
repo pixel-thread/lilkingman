@@ -1,0 +1,7 @@
+{
+  "extends": ["eslint-config-expo/flat"],
+  "ignorePatterns": ["dist/*"],
+  "rules": {
+    "react/display-name": "off"
+  }
+}

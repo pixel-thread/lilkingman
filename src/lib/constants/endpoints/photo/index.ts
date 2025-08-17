@@ -7,6 +7,7 @@ type PhotosEndpointKeys =
   | 'GET_FEATURED_PHOTO'
   | 'POST_ADD_FEATURED_PHOTO'
   | 'GET_EVENT_PHOTO'
+  | 'GET_PHOTO_BY_ID'
   | 'POST_ADD_EVENT_PHOTO';
 
 export const PHOTOS_ENDPOINT: EndpointT<PhotosEndpointKeys> = {
@@ -17,4 +18,5 @@ export const PHOTOS_ENDPOINT: EndpointT<PhotosEndpointKeys> = {
   POST_ADD_FEATURED_PHOTO: '/photo/featured',
   GET_EVENT_PHOTO: '/photo/event/:id',
   POST_ADD_EVENT_PHOTO: '/photo/event/:id',
+  GET_PHOTO_BY_ID: '/photo/:id',
 };

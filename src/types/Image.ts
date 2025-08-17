@@ -1,3 +1,5 @@
+import { PaymentI, PaymentStatusT } from './payment';
+
 export interface ImageI {
   id: string;
   photoId: string;
@@ -9,9 +11,14 @@ export interface ImageI {
   chunksUploaded: number;
   status: 'ACTIVE' | 'DELETED' | string; // constrain if known
   isFeatured: boolean;
+  isPaid: boolean;
+  paymentStatus: PaymentStatusT;
+  thumbnailUrl: string;
+  blurUrl: string;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   deletedAt: string | null; // ISO date string or null
   userId: string | null;
   eventId: string | null;
+  payment: PaymentI | null;
 }

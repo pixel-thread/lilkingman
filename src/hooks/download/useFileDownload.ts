@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect } from 'react';
 import { Alert, Platform, ToastAndroid } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ImageI } from '~/src/types/Image';
 import { useImageViewModalStore } from '~/src/lib/store/useImageViewerModal';
 import { logger } from '~/src/utils/logger';
 
