@@ -20,15 +20,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import http from '~/src/utils/http';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 import { EVENTS_ENDPOINT } from '~/src/lib/constants/endpoints/event';
-
-type Props = {
-  open: boolean;
-  onClose: () => void;
-};
+import { useScannerStore } from '~/src/lib/store/useScannerStore';
+import { StatusBar } from 'expo-status-bar';
 
 const uuidSchema = z.uuid();
 
-export const InviteScanner = ({ open, onClose }: Props) => {
+export const InviteScanner = () => {
+  const { open, onValueChange: onClose } = useScannerStore();
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const [cameraVisible, setCameraVisible] = useState(false);
@@ -111,8 +109,7 @@ export const InviteScanner = ({ open, onClose }: Props) => {
     // Stop scan animation
     scanAnimation.stopAnimation();
 
-    // Haptic feedback (if available)
-    // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     const payload = data?.trim?.() ?? '';
 
@@ -128,8 +125,8 @@ export const InviteScanner = ({ open, onClose }: Props) => {
       setScanned(false);
       setIsProcessing(false);
       Alert.alert('Invalid QR Code', 'Please scan a valid event QR code.');
-    } catch (err) {
-      Alert.alert('Error', 'Unexpected error occurred');
+    } catch (err: any) {
+      Alert.alert('Error', err.message);
       setScanned(false);
       setIsProcessing(false);
     }
@@ -153,14 +150,14 @@ export const InviteScanner = ({ open, onClose }: Props) => {
     setIsProcessing(false);
     scanAnimation.setValue(0);
     fadeAnimation.setValue(0);
-    onClose();
+    onClose(false);
   };
 
   useEffect(() => {
     if (open) {
       openCamera();
     }
-  }, [open, isGranted]);
+  }, [open, isGranted, openCamera]);
 
   if (isLoading) return <View />;
 
@@ -170,120 +167,124 @@ export const InviteScanner = ({ open, onClose }: Props) => {
   });
 
   return (
-    <Modal
-      visible={cameraVisible}
-      animationType="fade"
-      transparent={true}
-      onRequestClose={closeCamera}
-      statusBarTranslucent={true}>
-      <Animated.View style={[styles.container, { opacity: fadeAnimation }]}>
-        {isGranted ? (
-          <View style={styles.cameraWrapper}>
-            <CameraView
-              style={StyleSheet.absoluteFill}
-              facing={'back'}
-              onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
-            />
-
-            {/* Overlay with cutout */}
-            <View style={styles.overlay}>
-              {/* Top overlay */}
-              <View
-                style={[styles.overlaySection, { height: (screenHeight - scanBoxSize) / 2 - 40 }]}
+    <>
+      <StatusBar translucent hidden={open} />
+      <Modal
+        visible={cameraVisible}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={closeCamera}
+        statusBarTranslucent={true}>
+        <Animated.View style={[styles.container, { opacity: fadeAnimation }]}>
+          {isGranted ? (
+            <View style={styles.cameraWrapper}>
+              <CameraView
+                style={StyleSheet.absoluteFill}
+                facing={'back'}
+                onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
               />
 
-              {/* Middle section with scan area */}
-              <View style={styles.middleSection}>
-                <View style={styles.overlaySide} />
-                <View style={styles.scanAreaContainer}>
-                  <Animated.View
-                    style={[styles.scanBox, { transform: [{ scale: pulseAnimation }] }]}>
-                    {/* Corner indicators */}
-                    <View style={[styles.corner, styles.topLeft]} />
-                    <View style={[styles.corner, styles.topRight]} />
-                    <View style={[styles.corner, styles.bottomLeft]} />
-                    <View style={[styles.corner, styles.bottomRight]} />
+              {/* Overlay with cutout */}
+              <View style={styles.overlay}>
+                {/* Top overlay */}
+                <View
+                  style={[styles.overlaySection, { height: (screenHeight - scanBoxSize) / 2 - 40 }]}
+                />
+                {/* Middle section with scan area */}
+                <View style={styles.middleSection}>
+                  <View style={styles.overlaySide} />
+                  <View style={styles.scanAreaContainer}>
+                    <Animated.View
+                      style={[styles.scanBox, { transform: [{ scale: pulseAnimation }] }]}>
+                      {/* Corner indicators */}
+                      <View style={[styles.corner, styles.topLeft]} />
+                      <View style={[styles.corner, styles.topRight]} />
+                      <View style={[styles.corner, styles.bottomLeft]} />
+                      <View style={[styles.corner, styles.bottomRight]} />
 
-                    {/* Scan line animation */}
-                    {!scanned && (
-                      <Animated.View
-                        style={[styles.scanLine, { transform: [{ translateY: scanLinePosition }] }]}
-                      />
-                    )}
-                  </Animated.View>
+                      {/* Scan line animation */}
+                      {!scanned && (
+                        <Animated.View
+                          style={[
+                            styles.scanLine,
+                            { transform: [{ translateY: scanLinePosition }] },
+                          ]}
+                        />
+                      )}
+                    </Animated.View>
+                  </View>
+                  <View style={styles.overlaySide} />
                 </View>
-                <View style={styles.overlaySide} />
+                {/* Bottom overlay */}
+                <View style={styles.overlaySection}>
+                  <Text style={styles.instructionText}>
+                    {isProcessing ? 'Processing...' : 'Position QR code inside the frame'}
+                  </Text>
+                </View>
               </View>
 
-              {/* Bottom overlay */}
-              <View style={styles.overlaySection}>
-                <Text style={styles.instructionText}>
-                  {isProcessing ? 'Processing...' : 'Position QR code inside the frame'}
-                </Text>
+              {/* Header */}
+              <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
+                <View style={styles.headerContent}>
+                  <Text style={styles.headerTitle}>Scan QR Code</Text>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={closeCamera}
+                    activeOpacity={0.7}>
+                    <View style={styles.closeButtonInner}>
+                      <Ionicons name="close" size={24} color="white" />
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Bottom controls */}
+              <View style={[styles.controls, { paddingBottom: insets.bottom + 30 }]}>
+                {scanned && !isProcessing && (
+                  <Button
+                    variant="secondary"
+                    onPress={() => {
+                      setScanned(false);
+                      startScanAnimation();
+                    }}
+                    style={styles.scanAgainButton}>
+                    <Text style={styles.scanAgainText}>Scan Again</Text>
+                  </Button>
+                )}
+
+                {isProcessing && (
+                  <View style={styles.processingContainer}>
+                    <Animated.View style={{ transform: [{ rotate: '0deg' }] }}>
+                      <Ionicons name="checkmark-circle" size={32} color="#4CAF50" />
+                    </Animated.View>
+                    <Text style={styles.processingText}>Joining event...</Text>
+                  </View>
+                )}
               </View>
             </View>
-
-            {/* Header */}
-            <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-              <View style={styles.headerContent}>
-                <Text style={styles.headerTitle}>Scan QR Code</Text>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={closeCamera}
-                  activeOpacity={0.7}>
-                  <View style={styles.closeButtonInner}>
-                    <Ionicons name="close" size={24} color="white" />
-                  </View>
+          ) : (
+            <View style={[styles.permissionContainer, { paddingTop: insets.top }]}>
+              <View style={StyleSheet.absoluteFill} />
+              <View style={styles.permissionContent}>
+                <View style={styles.cameraIconContainer}>
+                  <Ionicons name="camera-outline" size={80} color="#666" />
+                </View>
+                <Text style={styles.permissionTitle}>Camera Access Required</Text>
+                <Text style={styles.permissionDescription}>
+                  We need camera access to scan QR codes and join events.
+                </Text>
+                <Button variant="default" onPress={requestPermission} style={styles.grantButton}>
+                  <Text style={styles.grantButtonText}>Grant Permission</Text>
+                </Button>
+                <TouchableOpacity onPress={closeCamera} style={styles.cancelButton}>
+                  <Text style={styles.cancelText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
             </View>
-
-            {/* Bottom controls */}
-            <View style={[styles.controls, { paddingBottom: insets.bottom + 30 }]}>
-              {scanned && !isProcessing && (
-                <Button
-                  variant="secondary"
-                  onPress={() => {
-                    setScanned(false);
-                    startScanAnimation();
-                  }}
-                  style={styles.scanAgainButton}>
-                  <Text style={styles.scanAgainText}>Scan Again</Text>
-                </Button>
-              )}
-
-              {isProcessing && (
-                <View style={styles.processingContainer}>
-                  <Animated.View style={{ transform: [{ rotate: '0deg' }] }}>
-                    <Ionicons name="checkmark-circle" size={32} color="#4CAF50" />
-                  </Animated.View>
-                  <Text style={styles.processingText}>Joining event...</Text>
-                </View>
-              )}
-            </View>
-          </View>
-        ) : (
-          <View style={[styles.permissionContainer, { paddingTop: insets.top }]}>
-            <View style={StyleSheet.absoluteFill} />
-            <View style={styles.permissionContent}>
-              <View style={styles.cameraIconContainer}>
-                <Ionicons name="camera-outline" size={80} color="#666" />
-              </View>
-              <Text style={styles.permissionTitle}>Camera Access Required</Text>
-              <Text style={styles.permissionDescription}>
-                We need camera access to scan QR codes and join events.
-              </Text>
-              <Button variant="default" onPress={requestPermission} style={styles.grantButton}>
-                <Text style={styles.grantButtonText}>Grant Permission</Text>
-              </Button>
-              <TouchableOpacity onPress={closeCamera} style={styles.cancelButton}>
-                <Text style={styles.cancelText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      </Animated.View>
-    </Modal>
+          )}
+        </Animated.View>
+      </Modal>
+    </>
   );
 };
 
@@ -304,6 +305,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   overlaySection: {
+    height: '100%',
     backgroundColor: 'rgba(0,0,0,0.7)',
   },
   middleSection: {

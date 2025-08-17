@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Animated, View } from 'react-native';
 
 export const Loader = () => {
@@ -8,10 +8,10 @@ export const Loader = () => {
     useRef(new Animated.Value(0)).current,
     useRef(new Animated.Value(0)).current,
   ];
-
+  const animValuesRef = useMemo(() => animValues, [animValues]);
   // Start looping animation for each circle
   useEffect(() => {
-    const animations = animValues.map((anim, i) =>
+    const animations = animValuesRef.map((anim, i) =>
       Animated.loop(
         Animated.sequence([
           Animated.delay(i * 150),
@@ -31,11 +31,11 @@ export const Loader = () => {
 
     animations.forEach((a) => a.start());
     return () => animations.forEach((a) => a.stop());
-  }, []);
+  }, [animValuesRef]);
 
   return (
     <View className="flex-1 flex-row items-center justify-center gap-x-3 bg-background">
-      {animValues.map((anim, index) => (
+      {animValuesRef.map((anim, index) => (
         <Animated.View
           key={index}
           className="h-5 w-5 rounded-full bg-primary"

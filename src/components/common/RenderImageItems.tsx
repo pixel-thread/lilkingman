@@ -24,6 +24,12 @@ export const RenderImageItem = ({ item, index, imagePress }: Props) => {
     }).start();
   }, [animValue, index]);
 
+  const imageUrl = item?.isPaid
+    ? item?.paymentStatus === 'SUCCESS'
+      ? item?.path
+      : item?.blurUrl
+    : item?.path;
+
   return (
     <Animated.View
       style={{
@@ -58,7 +64,7 @@ export const RenderImageItem = ({ item, index, imagePress }: Props) => {
           }}>
           <Image
             // TODO: Add place holder
-            source={item.path ? { uri: item.path } : require('~/src/assets/splash.png')}
+            source={imageUrl ? { uri: imageUrl } : require('~/src/assets/splash.png')}
             style={{
               width: imageSize,
               height: imageSize,
