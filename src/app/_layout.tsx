@@ -10,7 +10,6 @@ import { EventContextProvider } from '../components/provider/event';
 import { Loading } from '../components/common/Loading';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { useScannerStore } from '../lib/store/useScannerStore';
 import { InviteScanner } from '../components/common/InviteScanner';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
@@ -23,7 +22,6 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-  const { open, onValueChange: onClose } = useScannerStore();
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -54,7 +52,6 @@ export default function RootLayout() {
                       <Stack>
                         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
                       </Stack>
-                      <InviteScanner open={open} onClose={() => onClose(false)} />
                     </KeyboardAvoidingView>
                   </GestureHandlerRootView>
                 </EventContextProvider>
