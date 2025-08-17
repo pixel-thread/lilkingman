@@ -10,7 +10,7 @@ import http from '~/src/utils/http';
 export const EventRightHeader = () => {
   const { event } = useEventContext();
   const { user } = useAuthContext();
-  const { open, onValueChange } = useScannerStore();
+  const { onValueChange } = useScannerStore();
   const queryClient = useQueryClient();
   const { mutate: removeEvent } = useMutation({
     mutationKey: ['remove-event'],
@@ -24,9 +24,7 @@ export const EventRightHeader = () => {
     },
   });
 
-  const onClickScan = () => {
-    onValueChange(!open);
-  };
+  const onClickScan = () => onValueChange(true);
 
   return (
     <View className="flex flex-row gap-x-3">
