@@ -1,5 +1,4 @@
 import { Drawer } from 'expo-router/drawer';
-import { Container } from '~/src/components/common/Container';
 import { CustomDrawerContent } from '~/src/components/common/CustomDrawer';
 import { CustomHeader } from '~/src/components/common/CustomHeader';
 
