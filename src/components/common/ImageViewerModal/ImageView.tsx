@@ -1,12 +1,24 @@
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { View, Image, ActivityIndicator, Alert } from 'react-native';
 import { Text } from '~/src/components/ui/Text';
+import { PHOTOS_ENDPOINT } from '~/src/lib/constants/endpoints/photo';
 import { useImageViewModalStore } from '~/src/lib/store/useImageViewerModal';
+import { ImageI } from '~/src/types/Image';
+import http from '~/src/utils/http';
 
 export const ImageView = () => {
   const { image: selectedImage } = useImageViewModalStore();
 
-  const [imageLoading, setImageLoading] = useState(true);
+  const { data, isFetching: imageLoading } = useQuery({
+    queryFn: async () =>
+      http.get<ImageI>(PHOTOS_ENDPOINT.GET_PHOTO_BY_ID.replace(':id', selectedImage?.id || '')),
+    queryKey: ['photo', selectedImage?.id],
+    enabled: !!selectedImage,
+    select: (data) => data.data,
+  });
+
+  const imageUrl = data?.isPaid && data?.paymentStatus === 'SUCCESS' ? data?.path : data?.blurUrl;
 
   return (
     <View
@@ -28,18 +40,11 @@ export const ImageView = () => {
           <Text style={{ marginTop: 8, fontSize: 12, color: 'white' }}>Loading...</Text>
         </View>
       )}
-
-      {/* Main Image */}
       <Image
-        source={{ uri: selectedImage?.path }}
+        source={{ uri: imageUrl }}
         style={{ height: '100%', width: '100%' }}
         resizeMode="contain"
-        onLoadStart={() => setImageLoading(true)}
-        onLoadEnd={() => setImageLoading(false)}
-        onError={() => {
-          setImageLoading(false);
-          Alert.alert('Error', 'Failed to load image');
-        }}
+        onError={() => Alert.alert('Error', 'Failed to load image')}
       />
     </View>
   );

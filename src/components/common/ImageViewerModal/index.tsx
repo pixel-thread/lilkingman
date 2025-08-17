@@ -4,6 +4,7 @@ import { useImageViewModalStore } from '~/src/lib/store/useImageViewerModal';
 import { HeaderController } from './HeaderController';
 import { ButtomController } from './BottomController';
 import { ImageView } from './ImageView';
+import { ScreenCapturePrevent } from '../ScreenCapturePrevent';
 
 export const ImageViewerModal = () => {
   const {
@@ -15,7 +16,6 @@ export const ImageViewerModal = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const [isAnimatingVisible, setAnimatingVisible] = useState(false);
-
   // Open animation
   useEffect(() => {
     if (modalVisible) {
@@ -64,7 +64,9 @@ export const ImageViewerModal = () => {
               opacity: fadeAnim,
               transform: [{ scale: scaleAnim }],
             }}>
-            <ImageView />
+            <ScreenCapturePrevent>
+              <ImageView />
+            </ScreenCapturePrevent>
             <HeaderController onClose={closeModal} />
             <ButtomController />
           </Animated.View>
