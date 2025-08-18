@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
+
 import { usePathname, useRouter } from 'expo-router';
+
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
 
 export const Redirect = ({ children }: { children: React.ReactNode }) => {

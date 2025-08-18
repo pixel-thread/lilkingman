@@ -15,6 +15,11 @@ import {
   removeToken,
 } from '~/src/utils/storage/token';
 import { logger } from '~/src/utils/logger';
+import {
+  removeUser as removeUserFromStorage,
+  getUser as getUserFromStorage,
+  setUser as saveUserToStorage,
+} from '~/src/utils/storage/user';
 
 type Props = { children: React.ReactNode };
 
@@ -53,23 +58,24 @@ export const AuthContextProvider = ({ children }: Props) => {
       return http.get<UserI>(AUTH_ENDPOINT.GET_ME);
     },
 
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data.success && data.data) {
         logger.info({ message: 'User fetch success' });
         setUser(data.data);
+        await saveUserToStorage(data.data);
         setLastUserFetch(Date.now());
       } else {
         logger.warn({ message: 'User fetch failed — logging out' });
-        if (Platform.OS === 'ios') {
+        if (Platform.OS !== 'ios') {
           ToastAndroid.show('Please Check your internet connection', ToastAndroid.SHORT);
         }
       }
     },
     onError: (error) => {
-      if (Platform.OS === 'ios') {
+      logger.error({ message: 'User fetch error', error });
+      if (Platform.OS !== 'ios') {
         ToastAndroid.show('There was an error while fetching your details', ToastAndroid.SHORT);
       }
-      logger.error({ message: 'User fetch error', error });
       secureLogout();
     },
   });
@@ -119,9 +125,9 @@ export const AuthContextProvider = ({ children }: Props) => {
       logger.error({ message: 'Clerk signOut error', error: err });
     } finally {
       setUser(null);
+      await removeUserFromStorage();
       setToken(null);
       setLastUserFetch(null);
-      await removeToken();
       queryClient.clear();
     }
   }, [clerkSignOut, queryClient]);
@@ -133,6 +139,12 @@ export const AuthContextProvider = ({ children }: Props) => {
         logger.info({ message: 'Hydrating auth...' });
 
         const storedToken = await getTokenFromStorage();
+        const storedUser = await getUserFromStorage();
+
+        if (storedUser) {
+          logger.info({ message: 'Loaded stored user' });
+          setUser(storedUser);
+        }
 
         // Case 1: Signed in
         if (isSignedIn) {
