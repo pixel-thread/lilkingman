@@ -5,13 +5,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '~/src/components/ui/Text';
 import { useFileDownload } from '~/src/hooks/download/useFileDownload';
+import { useImageViewModalStore } from '~/src/lib/store/useImageViewerModal';
+import { PaymentButton } from '../payment/PaymentButton';
 
 export const ButtomController = () => {
   const [isLiked, setIsLiked] = useState(false);
-
+  const { image } = useImageViewModalStore();
   const insets = useSafeAreaInsets();
   const bottomSafeArea = Platform.OS === 'ios' ? insets.bottom : Math.max(insets.bottom, 16);
+
   const { downloadImage, isDownloading } = useFileDownload();
+
+  const isShowPaymentButton = image?.isPaid && image?.paymentStatus !== 'SUCCESS';
+
   const shareImage = () => {};
 
   return (
@@ -28,6 +34,8 @@ export const ButtomController = () => {
         colors={['transparent', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)']}
         style={{ paddingTop: 32, paddingBottom: 8 }}>
         {/* Action Buttons */}
+
+        {isShowPaymentButton && <PaymentButton />}
         <View
           style={{
             flexDirection: 'row',

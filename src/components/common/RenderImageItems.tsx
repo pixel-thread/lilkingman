@@ -24,11 +24,7 @@ export const RenderImageItem = ({ item, index, imagePress }: Props) => {
     }).start();
   }, [animValue, index]);
 
-  const imageUrl = item?.isPaid
-    ? item?.paymentStatus === 'SUCCESS'
-      ? item?.path
-      : item?.blurUrl
-    : item?.path;
+  const imageUrl = item?.thumbnailUrl;
 
   return (
     <Animated.View

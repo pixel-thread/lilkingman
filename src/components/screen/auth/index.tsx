@@ -2,8 +2,8 @@ import { View, Image, ScrollView, RefreshControl, Dimensions, StyleSheet } from 
 import { LinearGradient } from 'expo-linear-gradient';
 import { H1, H2, P } from '~/src/components/ui/Typography';
 import { useAuthContext } from '~/src/hooks/auth/useAuthContext';
-import { SocialLogin } from './SocialLogin';
 import Constants from 'expo-constants';
+import { SocialLogin } from './SocialLogin';
 
 const { height } = Dimensions.get('window');
 
@@ -84,7 +84,6 @@ export const AuthScreen = () => {
 
               {/* Social Login Button */}
               <SocialLogin />
-
               {/* Legal text */}
               <P className="mt-6 text-center text-xs text-white/50">
                 By continuing, you agree to our <P className="text-white/70 underline">Terms</P> and{' '}

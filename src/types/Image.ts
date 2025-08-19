@@ -12,6 +12,7 @@ export interface ImageI {
   status: 'ACTIVE' | 'DELETED' | string; // constrain if known
   isFeatured: boolean;
   isPaid: boolean;
+  price: number;
   paymentStatus: PaymentStatusT;
   thumbnailUrl: string;
   blurUrl: string;
