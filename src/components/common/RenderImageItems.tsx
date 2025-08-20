@@ -10,7 +10,8 @@ type Props = {
 
 export const RenderImageItem = ({ item, index, imagePress }: Props) => {
   const windowWidth = Dimensions.get('window').width;
-  const imageSize = windowWidth / 3 - 10; // 3 columns with margin
+  const imageWidth = (windowWidth - 8) / 3; // 3 columns with 2px margin each side (8px total)
+  const imageHeight = imageWidth * 1.35; // Portrait aspect ratio (4:3 or 1.35:1 like Instagram)
 
   // Animation
   const animValue = useRef(new Animated.Value(0)).current;
@@ -43,14 +44,14 @@ export const RenderImageItem = ({ item, index, imagePress }: Props) => {
         onPress={() => imagePress(item)}
         activeOpacity={0.85}
         style={{
-          margin: 4,
-          borderRadius: 16,
+          margin: 1, // Reduced margin for tighter grid
+          borderRadius: 1,
           overflow: 'hidden',
           backgroundColor: 'rgba(255,255,255,0.08)', // glassy background
         }}>
         <View
           style={{
-            borderRadius: 16,
+            borderRadius: 1,
             overflow: 'hidden',
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
@@ -59,11 +60,10 @@ export const RenderImageItem = ({ item, index, imagePress }: Props) => {
             elevation: 3,
           }}>
           <Image
-            // TODO: Add place holder
             source={imageUrl ? { uri: imageUrl } : require('~/src/assets/splash.png')}
             style={{
-              width: imageSize,
-              height: imageSize,
+              width: imageWidth,
+              height: imageHeight, // Portrait aspect ratio
             }}
             resizeMode="cover"
           />

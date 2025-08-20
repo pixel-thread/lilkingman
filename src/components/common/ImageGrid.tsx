@@ -20,8 +20,8 @@ export const ImageGrid = ({ data = [] }: ImageGridProps) => {
         )}
         keyExtractor={(item) => item.id}
         numColumns={3}
-        className="flex-1 pt-2"
-        contentContainerClassName="items-center"
+        className="flex-1 pt-0"
+        contentContainerClassName="space-between"
         showsVerticalScrollIndicator={false}
         scrollEnabled={false}
       />
