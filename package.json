@@ -13,6 +13,7 @@
     "inject:secure-flag": "bash ./scripts/inject.sh",
     "local:android": "npx eas build --platform android --profile local --local",
     "local:dev:android": "eas build --profile development --platform android --local",
+    "local:dev:ios": "eas build --profile development --platform ios --local",
     "build:dev": "eas build --profile development --platform all",
     "build:preview": "eas build --profile preview --platform all",
     "build:prod": "eas build --profile production --platform all",
