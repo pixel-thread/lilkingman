@@ -5,6 +5,7 @@ import { PHOTOS_ENDPOINT } from '~/src/lib/constants/endpoints/photo';
 import { useImageViewModalStore } from '~/src/lib/store/useImageViewerModal';
 import { ImageI } from '~/src/types/Image';
 import http from '~/src/utils/http';
+import { logger } from '~/src/utils/logger';
 
 export const ImageView = () => {
   const { image: selectedImage } = useImageViewModalStore();
@@ -43,7 +44,7 @@ export const ImageView = () => {
         source={{ uri: imageUrl }}
         style={{ height: '100%', width: '100%' }}
         resizeMode="contain"
-        onError={() => Alert.alert('Error', 'Failed to load image')}
+        onError={(error) => logger.log(error)}
       />
     </View>
   );
